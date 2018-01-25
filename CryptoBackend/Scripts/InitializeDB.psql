@@ -1,0 +1,104 @@
+﻿CREATE TABLE countries
+(
+  id           UUID NOT NULL
+    CONSTRAINT countries_pkey
+    PRIMARY KEY,
+  name         VARCHAR(255),
+  show_warning BOOLEAN DEFAULT FALSE,
+  block_trades BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE fiats
+(
+  id        UUID         NOT NULL
+    CONSTRAINT fiats_pkey
+    PRIMARY KEY,
+  name      VARCHAR(255) NOT NULL,
+  symbol    VARCHAR(255) NOT NULL,
+  price_usd NUMERIC      NOT NULL
+);
+
+CREATE TABLE coins
+(
+  id                 UUID              NOT NULL
+    CONSTRAINT coins_pkey
+    PRIMARY KEY,
+  name               VARCHAR(255)      NOT NULL,
+  symbol             VARCHAR(255)      NOT NULL,
+  price              NUMERIC           NOT NULL,
+  transfer_time_mins NUMERIC DEFAULT 0 NOT NULL,
+  price_currency_id  UUID              NOT NULL
+    CONSTRAINT coins_fiats_id_fk
+    REFERENCES fiats
+);
+
+CREATE TABLE exchanges
+(
+  id           UUID                  NOT NULL
+    CONSTRAINT exchanges_pkey
+    PRIMARY KEY,
+  name         VARCHAR(255)          NOT NULL,
+  country_id   UUID                  NOT NULL
+    CONSTRAINT exchanges_countries_id_fk
+    REFERENCES countries,
+  show_warning BOOLEAN DEFAULT FALSE NOT NULL,
+  block_trades BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+CREATE TABLE transfer_times
+(
+  exchange_id           UUID              NOT NULL
+    CONSTRAINT transfer_times_exchanges_id_fk
+    REFERENCES exchanges,
+  coin_id               UUID              NOT NULL
+    CONSTRAINT transfer_times_coins_id_fk
+    REFERENCES coins,
+  minimum_confirmations INTEGER DEFAULT 0 NOT NULL,
+  CONSTRAINT transfer_times_exchange_id_coin_id_pk
+  PRIMARY KEY (exchange_id, coin_id)
+);
+
+CREATE TABLE fiat_dw_options
+(
+  exchange_id             UUID                            NOT NULL
+    CONSTRAINT fiat_options_exchanges_id_fk
+    REFERENCES exchanges,
+  fiat_id                 UUID                            NOT NULL
+    CONSTRAINT fiat_options_fiats_id_fk
+    REFERENCES fiats,
+  deposit_limit_min       NUMERIC DEFAULT 0               NOT NULL,
+  deposit_limit_max       NUMERIC DEFAULT '-1' :: INTEGER NOT NULL,
+  withdraw_limit_min      NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_limit_max      NUMERIC DEFAULT 0               NOT NULL,
+  deposit_fee_percentage  NUMERIC DEFAULT 0               NOT NULL,
+  deposit_fee_fixed       NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_fee_percentage NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_fee_fixed      NUMERIC DEFAULT 0               NOT NULL,
+  depositable             BOOLEAN DEFAULT FALSE           NOT NULL,
+  withdrawable            BOOLEAN DEFAULT FALSE           NOT NULL,
+  CONSTRAINT fiat_options_exchange_id_fiat_id_pk
+  PRIMARY KEY (exchange_id, fiat_id)
+);
+
+CREATE TABLE coin_dw_options
+(
+  exchange_id             UUID                            NOT NULL
+    CONSTRAINT coin_dw_options_exchanges_id_fk
+    REFERENCES exchanges,
+  coin_id                 UUID                            NOT NULL
+    CONSTRAINT coin_dw_options_coins_id_fk
+    REFERENCES coins,
+  deposit_limit_min       NUMERIC DEFAULT 0               NOT NULL,
+  deposit_limit_max       NUMERIC DEFAULT '-1' :: INTEGER NOT NULL,
+  withdraw_limit_min      NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_limit_max      NUMERIC DEFAULT 0               NOT NULL,
+  deposit_fee_percentage  NUMERIC DEFAULT 0               NOT NULL,
+  deposit_fee_fixed       NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_fee_percentage NUMERIC DEFAULT 0               NOT NULL,
+  withdraw_fee_fixed      NUMERIC DEFAULT 0               NOT NULL,
+  depositable             BOOLEAN DEFAULT FALSE           NOT NULL,
+  withdrawable            BOOLEAN DEFAULT FALSE           NOT NULL,
+  CONSTRAINT coin_dw_options_exchange_id_coin_id_pk
+  PRIMARY KEY (exchange_id, coin_id)
+);
+
