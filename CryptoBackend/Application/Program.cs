@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using CryptoBackend.Utils;
 
 namespace CryptoBackend
 {
@@ -14,12 +15,15 @@ namespace CryptoBackend
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
-        }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            var config = Config.Default;
+            new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
-                .Build();
+                .UseIISIntegration()
+                .UseUrls("http://127.0.0.1:" + config.Port)
+                .Build()
+                .Run();
+        }
     }
 }

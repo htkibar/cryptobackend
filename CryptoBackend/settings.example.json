@@ -1,0 +1,10 @@
+﻿{
+  "BaseUrl": "http://localhost:5001/",
+  "ConnectionString": "User ID=USERNAME;Password=PASSWORD;Host=localhost;Port=DBPORT;Database=DBNAME;Pooling=true;",
+  "SecretKey": "",
+  "TokenExpireSeconds": 3600,
+  "TokenReplaceSeconds": 60,
+  "Port": 5001,
+  "DoNotMinifyOutput": true,
+  "DoNotCacheOutput": true
+}
