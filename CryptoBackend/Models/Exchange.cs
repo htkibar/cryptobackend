@@ -85,6 +85,7 @@ namespace CryptoBackend.Models
             if (id == Guid.Empty) {
                 using (var transaction = Database.Master.BeginTransaction()) {
                     try {
+                        var tasks = new List<Task>();
                         id = Database.Master.Run<Guid>(@"
                             insert into exchanges
                             (
@@ -109,7 +110,7 @@ namespace CryptoBackend.Models
                         });
 
                         foreach (var coin in coins) {
-                            Database.Master.RunAsync<int>(@"
+                            tasks.Add(Database.Master.RunAsync<int>(@"
                                 insert into coin_dw_options
                                 (
                                     exchange_id,
@@ -153,11 +154,11 @@ namespace CryptoBackend.Models
                                 WithdrawFeeFixed = coin.WithdrawalFees.Fixed,
                                 Depositable = coin.Depositable,
                                 Withdrawable = coin.Withdrawable
-                            });
+                            }));
                         }
 
                         foreach (var fiat in fiats) {
-                            Database.Master.RunAsync<int>(@"
+                            tasks.Add(Database.Master.RunAsync<int>(@"
                                 insert into fiat_dw_options
                                 (
                                     exchange_id,
@@ -201,9 +202,10 @@ namespace CryptoBackend.Models
                                 WithdrawFeeFixed = fiat.WithdrawalFees.Fixed,
                                 Depositable = fiat.Depositable,
                                 Withdrawable = fiat.Withdrawable
-                            });
+                            }));
                         }
                         
+                        Task.WaitAll(tasks.ToArray());
                         transaction.Commit();
                     } catch {
                         transaction.Rollback();
