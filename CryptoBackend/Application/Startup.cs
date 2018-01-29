@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CryptoBackend.Utils;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +20,8 @@ namespace CryptoBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHangfire(config =>
+                config.UsePostgreSqlStorage(Config.Default.ConnectionString));
             services.AddCors();
             services.AddMvc();
         }
@@ -26,6 +31,8 @@ namespace CryptoBackend
         {
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials());
             app.UseMvc();
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
         }
     }
 }
