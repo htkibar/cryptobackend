@@ -18,7 +18,8 @@ namespace CryptoBackend.Models
         public bool ShowWarning { get => showWarning; set => showWarning = value; }
         public bool BlockTrades { get => blockTrades; set => blockTrades = value; }
 
-        public void Save() {
+        public void Save()
+        {
             if (id == Guid.Empty) {
                 id = Database.Master.Run<Guid>(@"
                     insert into countries

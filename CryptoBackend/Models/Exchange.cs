@@ -26,6 +26,7 @@ namespace CryptoBackend.Models
 
     public class ExchangeCoin
     {
+        private Coin coin;
         private int minimumConfirmations;
         private Limit depositLimits;
         private Limit withdrawalLimits;
@@ -34,6 +35,7 @@ namespace CryptoBackend.Models
         private bool depositable;
         private bool withdrawable;
 
+        public Coin Coin { get => coin; set => coin = value; }
         public int MinimumConfirmations { get => minimumConfirmations; set => minimumConfirmations = value; }
         public Limit DepositLimits { get => depositLimits; set => depositLimits = value; }
         public Limit WithdrawalLimits { get => withdrawalLimits; set => withdrawalLimits = value; }
@@ -45,6 +47,7 @@ namespace CryptoBackend.Models
 
     public class ExchangeFiat
     {
+        private Fiat fiat;
         private Limit depositLimits;
         private Limit withdrawalLimits;
         private Fee depositFees;
@@ -52,6 +55,7 @@ namespace CryptoBackend.Models
         private bool depositable;
         private bool withdrawable;
         
+        public Fiat Fiat { get => fiat; set => fiat = value; }
         public Limit DepositLimits { get => depositLimits; set => depositLimits = value; }
         public Limit WithdrawalLimits { get => withdrawalLimits; set => withdrawalLimits = value; }
         public Fee DepositFees { get => depositFees; set => depositFees = value; }
@@ -76,30 +80,135 @@ namespace CryptoBackend.Models
         public bool ShowWarning { get => showWarning; set => showWarning = value; }
         public bool BlockTrades { get => blockTrades; set => blockTrades = value; }
 
-        public void Save() {
+        public void Save()
+        {
             if (id == Guid.Empty) {
-                id = Database.Master.Run<Guid>(@"
-                    insert into exchanges
-                    (
-                        name,
-                        country_id,
-                        show_warning,
-                        block_trades
-                    )
-                    values
-                    (
-                        @Name,
-                        @CountryId,
-                        @ShowWarning,
-                        @BlockTrades
-                    )
-                    returning id;
-                ", new {
-                    Name = Name,
-                    CountryId = Country.Id,
-                    ShowWarning = false,
-                    BlockTrades = false
-                });
+                using (var transaction = Database.Master.BeginTransaction()) {
+                    try {
+                        id = Database.Master.Run<Guid>(@"
+                            insert into exchanges
+                            (
+                                name,
+                                country_id,
+                                show_warning,
+                                block_trades
+                            )
+                            values
+                            (
+                                @Name,
+                                @CountryId,
+                                @ShowWarning,
+                                @BlockTrades
+                            )
+                            returning id;
+                        ", new {
+                            Name = Name,
+                            CountryId = Country.Id,
+                            ShowWarning = false,
+                            BlockTrades = false
+                        });
+
+                        foreach (var coin in coins) {
+                            Database.Master.RunAsync<int>(@"
+                                insert into coin_dw_options
+                                (
+                                    exchange_id,
+                                    coin_id,
+                                    deposit_limit_min,
+                                    deposit_limit_max,
+                                    withdraw_limit_min,
+                                    withdraw_limit_max,
+                                    deposit_fee_percentage,
+                                    deposit_fee_fixed,
+                                    withdraw_fee_percentage,
+                                    withdraw_fee_fixed,
+                                    depositable,
+                                    withdrawable
+                                )
+                                values
+                                (
+                                    @ExchangeId,
+                                    @CoinId,
+                                    @DepositLimitMin,
+                                    @DepositLimitMax,
+                                    @WithdrawLimitMin,
+                                    @WithdrawLimitMax,
+                                    @DepositFeePercentage,
+                                    @DepositFeeFixed,
+                                    @WithdrawFeePercentage,
+                                    @WithdrawFeeFixed,
+                                    @Depositable,
+                                    @Withdrawable
+                                );
+                            ", new {
+                                ExchangeId = Id,
+                                CoinId = coin.Coin.Id,
+                                DepositLimitMin = coin.DepositLimits.Min,
+                                DepositLimitMax = coin.DepositLimits.Max,
+                                WithdrawLimitMin = coin.WithdrawalLimits.Min,
+                                WithdrawLimitMax = coin.WithdrawalLimits.Max,
+                                DepositFeePercentage = coin.DepositFees.Percentage,
+                                DepositFeeFixed = coin.DepositFees.Fixed,
+                                WithdrawFeePercentage = coin.WithdrawalFees.Percentage,
+                                WithdrawFeeFixed = coin.WithdrawalFees.Fixed,
+                                Depositable = coin.Depositable,
+                                Withdrawable = coin.Withdrawable
+                            });
+                        }
+
+                        foreach (var fiat in fiats) {
+                            Database.Master.RunAsync<int>(@"
+                                insert into fiat_dw_options
+                                (
+                                    exchange_id,
+                                    fiat_id,
+                                    deposit_limit_min,
+                                    deposit_limit_max,
+                                    withdraw_limit_min,
+                                    withdraw_limit_max,
+                                    deposit_fee_percentage,
+                                    deposit_fee_fixed,
+                                    withdraw_fee_percentage,
+                                    withdraw_fee_fixed,
+                                    depositable,
+                                    withdrawable
+                                )
+                                values
+                                (
+                                    @ExchangeId,
+                                    @FiatId,
+                                    @DepositLimitMin,
+                                    @DepositLimitMax,
+                                    @WithdrawLimitMin,
+                                    @WithdrawLimitMax,
+                                    @DepositFeePercentage,
+                                    @DepositFeeFixed,
+                                    @WithdrawFeePercentage,
+                                    @WithdrawFeeFixed,
+                                    @Depositable,
+                                    @Withdrawable
+                                );
+                            ", new {
+                                ExchangeId = Id,
+                                FiatId = fiat.Fiat.Id,
+                                DepositLimitMin = fiat.DepositLimits.Min,
+                                DepositLimitMax = fiat.DepositLimits.Max,
+                                WithdrawLimitMin = fiat.WithdrawalLimits.Min,
+                                WithdrawLimitMax = fiat.WithdrawalLimits.Max,
+                                DepositFeePercentage = fiat.DepositFees.Percentage,
+                                DepositFeeFixed = fiat.DepositFees.Fixed,
+                                WithdrawFeePercentage = fiat.WithdrawalFees.Percentage,
+                                WithdrawFeeFixed = fiat.WithdrawalFees.Fixed,
+                                Depositable = fiat.Depositable,
+                                Withdrawable = fiat.Withdrawable
+                            });
+                        }
+                        
+                        transaction.Commit();
+                    } catch {
+                        transaction.Rollback();
+                    }
+                }
             } else {
                 Database.Master.Run<Guid>(@"
                     update exchanges set

@@ -47,6 +47,7 @@ namespace CryptoBackend.Utils
             }
 
             connection.Close();
+
             return default(T);
         }
 
@@ -55,6 +56,15 @@ namespace CryptoBackend.Utils
             var result = connection.Query<T>(sql, param).FirstOrDefault();
             connection.Close();
             return result;
+        }
+
+        public static Task<IEnumerable<T>> RunAsync<T>(this IDbConnection connection, string sql, object param = null)
+        {
+            var task = connection.QueryAsync<T>(sql, param);
+            
+            connection.Close();
+
+            return task;
         }
     }
 }

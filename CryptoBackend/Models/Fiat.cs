@@ -18,7 +18,8 @@ namespace CryptoBackend.Models
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal PriceUsd { get => priceUsd; set => priceUsd = value; }
 
-        public void Save() {
+        public void Save()
+        {
             if (id == Guid.Empty) {
                 id = Database.Master.Run<Guid>(@"
                     insert into fiats
