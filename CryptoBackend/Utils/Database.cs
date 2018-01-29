@@ -50,12 +50,10 @@ namespace CryptoBackend.Utils
             return default(T);
         }
 
-        public static int Run(this IDbConnection connection, string sql, object param = null)
+        public static T Run<T>(this IDbConnection connection, string sql, object param = null)
         {
-            var result = connection.Execute(sql, param);
-
+            var result = connection.Query<T>(sql, param).FirstOrDefault();
             connection.Close();
-
             return result;
         }
     }

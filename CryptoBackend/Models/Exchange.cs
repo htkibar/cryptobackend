@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CryptoBackend.Utils;
 
 namespace CryptoBackend.Models
 {
@@ -61,7 +62,7 @@ namespace CryptoBackend.Models
 
     public class Exchange
     {
-        private Guid id;
+        private Guid id = Guid.Empty;
         private string name;
         private Country country;
         private bool showWarning;
@@ -74,5 +75,45 @@ namespace CryptoBackend.Models
         public Country Country { get => country; set => country = value; }
         public bool ShowWarning { get => showWarning; set => showWarning = value; }
         public bool BlockTrades { get => blockTrades; set => blockTrades = value; }
+
+        public void Save() {
+            if (id == Guid.Empty) {
+                id = Database.Master.Run<Guid>(@"
+                    insert into exchanges
+                    (
+                        name,
+                        country_id,
+                        show_warning,
+                        block_trades
+                    )
+                    values
+                    (
+                        @Name,
+                        @CountryId,
+                        @ShowWarning,
+                        @BlockTrades
+                    )
+                    returning id;
+                ", new {
+                    Name = Name,
+                    CountryId = Country.Id,
+                    ShowWarning = false,
+                    BlockTrades = false
+                });
+            } else {
+                Database.Master.Run<Guid>(@"
+                    update exchanges set
+                    name=@Name,
+                    country_id=@CountryId,
+                    show_warning=@ShowWarning,
+                    block_trades=@BlockTrades
+                ", new {
+                    Name = Name,
+                    CountryId = Country.Id,
+                    ShowWarning = ShowWarning,
+                    BlockTrades = BlockTrades
+                });
+            }
+        }
     }
 }
