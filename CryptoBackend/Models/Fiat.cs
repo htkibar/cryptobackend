@@ -24,18 +24,21 @@ namespace CryptoBackend.Models
                 id = Database.Master.Run<Guid>(@"
                     insert into fiats
                     (
+                        id,
                         name,
                         symbol,
                         price_usd
                     )
                     values
                     (
+                        @Id,
                         @Name,
                         @Symbol,
                         @PriceUsd
                     )
                     returning id;
                 ", new {
+                    Id = Guid.NewGuid(),
                     Name = Name,
                     Symbol = Symbol,
                     PriceUsd = PriceUsd

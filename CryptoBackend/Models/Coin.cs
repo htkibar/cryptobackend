@@ -28,6 +28,7 @@ namespace CryptoBackend.Models
                 id = Database.Master.Run<Guid>(@"
                     insert into coins
                     (
+                        id,
                         name,
                         symbol,
                         price,
@@ -36,14 +37,16 @@ namespace CryptoBackend.Models
                     )
                     values
                     (
-                       @Name,
-                       @Symbol,
-                       @Price,
-                       @TransferTimeMins,
-                       @PriceCurrencyId
+                        @Id,
+                        @Name,
+                        @Symbol,
+                        @Price,
+                        @TransferTimeMins,
+                        @PriceCurrencyId
                     )
                     returning id;
                 ", new {
+                    Id = Guid.NewGuid(),
                     Name = name,
                     Symbol = symbol,
                     Price = price,

@@ -89,6 +89,7 @@ namespace CryptoBackend.Models
                         id = Database.Master.Run<Guid>(@"
                             insert into exchanges
                             (
+                                id,
                                 name,
                                 country_id,
                                 show_warning,
@@ -96,6 +97,7 @@ namespace CryptoBackend.Models
                             )
                             values
                             (
+                                @Id,
                                 @Name,
                                 @CountryId,
                                 @ShowWarning,
@@ -103,6 +105,7 @@ namespace CryptoBackend.Models
                             )
                             returning id;
                         ", new {
+                            Id = Guid.NewGuid(),
                             Name = Name,
                             CountryId = Country.Id,
                             ShowWarning = false,

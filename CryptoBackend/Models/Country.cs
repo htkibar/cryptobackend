@@ -24,18 +24,21 @@ namespace CryptoBackend.Models
                 id = Database.Master.Run<Guid>(@"
                     insert into countries
                     (
+                        id,
                         name,
                         show_warning,
                         block_trades
                     )
                     values
                     (
+                        @Id,
                         @Name,
                         @ShowWarning,
                         @BlockTrades
                     )
                     returning id;
                 ", new {
+                    Id = Guid.NewGuid(),
                     Name = Name,
                     ShowWarning = ShowWarning,
                     BlockTrades = BlockTrades
