@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace CryptoBackend
 {
@@ -25,6 +26,8 @@ namespace CryptoBackend
                 config.UsePostgreSqlStorage(Config.Default.ConnectionString));
             services.AddCors();
             services.AddMvc();
+            services.AddSwaggerGen(config =>
+                config.SwaggerDoc("v1", new Info { Title = "CoinArbitrageAPI", Version = "v1" }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,6 +37,9 @@ namespace CryptoBackend
             app.UseMvc();
             app.UseHangfireServer();
             app.UseHangfireDashboard();
+            app.UseSwagger();
+            app.UseSwaggerUI(config =>
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "CoinArbitrageAPI v1"));
         }
     }
 }
