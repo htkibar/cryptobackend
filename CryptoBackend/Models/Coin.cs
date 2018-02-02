@@ -13,7 +13,7 @@ namespace CryptoBackend.Models
         private string symbol;
         private decimal price;
         private decimal transferTimeMins;
-        private Fiat priceCurrency;
+        private Fiat priceCurrency; // Make this fiat OR coin
 
         public Guid Id { get => id; set => id = value; }
         public string Name { get => name; set => name = value; }
