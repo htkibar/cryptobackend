@@ -13,14 +13,14 @@ namespace CryptoBackend.Models
         private string symbol;
         private decimal price;
         private decimal transferTimeMins;
-        private Coin priceCurrency;
+        private Fiat priceCurrency;
 
         public Guid Id { get => id; set => id = value; }
         public string Name { get => name; set => name = value; }
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal Price { get => price; set => price = value; }
         public decimal TransferTimeMins { get => transferTimeMins; set => transferTimeMins = value; }
-        public Coin PriceCurrency { get => priceCurrency; set => priceCurrency = value; }
+        public Fiat PriceCurrency { get => priceCurrency; set => priceCurrency = value; }
 
         public void Save()
         {
