@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace CryptoBackend.Utils
 {
-    class APIConsumer
+    class ApiConsumer
     {
         private static readonly HttpClient httpClient = new HttpClient();
         public static Task<T> Get<T>(string requestUri) {
