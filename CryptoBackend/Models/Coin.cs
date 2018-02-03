@@ -22,6 +22,38 @@ namespace CryptoBackend.Models
         public decimal TransferTimeMins { get => transferTimeMins; set => transferTimeMins = value; }
         public Fiat PriceCurrency { get => priceCurrency; set => priceCurrency = value; }
 
+        public static IEnumerable<Coin> Find(
+            string name = null,
+            string symbol = null
+        ) {
+            // TODO: Retrieve price currency too
+            var sql = @"
+                select
+                coin.id as Id,
+                coin.name as Name,
+                coin.symbol as Symbol,
+                coin.price as Price,
+                coin.transfer_time_mins as TransferTimeMins
+                from coins as coin
+                where 1=1
+            ";
+
+            if (name != null) {
+                sql += @" and coin.name like concat('%', @Name, '%')";
+            }
+
+            if (symbol != null) {
+                sql += @" and coin.symbol like @Symbol";
+            }
+
+            sql += @" order by coin.id";
+
+            return Database.Master.Many<Coin>(sql, new {
+                Name = name,
+                Symbol = symbol
+            });
+        }
+
         public void Save()
         {
             if (id == Guid.Empty) {

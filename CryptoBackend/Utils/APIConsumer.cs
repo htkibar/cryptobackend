@@ -8,7 +8,7 @@ namespace CryptoBackend.Utils
     class ApiConsumer
     {
         private static readonly HttpClient httpClient = new HttpClient();
-        public static readonly string CEX_BASE_URL = "";
+        public static readonly string CEX_BASE_URL = "https://cex.io/api";
         public static readonly string BITFINEX_BASE_URL = "";
         public static readonly string BINANCE_BASE_URL = "";
         public static readonly string BITSTAMP_BASE_URL = "";
