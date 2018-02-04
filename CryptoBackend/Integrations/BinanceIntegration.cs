@@ -1,9 +1,13 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using CryptoBackend.Utils;
+using Newtonsoft.Json;
 
 namespace CryptoBackend.Integrations
 {
     class BinanceIntegration : IExchangeIntegration
     {
+        private static readonly string BASE_URL = ApiConsumer.BINANCE_BASE_URL;
         public Task UpdateCoinDetails()
         {
             throw new System.NotImplementedException();
