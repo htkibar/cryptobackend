@@ -5,39 +5,38 @@ using Newtonsoft.Json;
 
 namespace CryptoBackend.Integrations
 {
-    class TickerData
-    {
-        [JsonProperty(PropertyName = "volume")]
-        public string Volume { get; set; }
-        [JsonProperty(PropertyName = "last")]
-        public string Last { get; set; }
-        [JsonProperty(PropertyName = "timestamp")]
-        public string Timestamp { get; set; }
-        [JsonProperty(PropertyName = "bid")]
-        public string Bid { get; set; }
-        [JsonProperty(PropertyName = "high")]
-        public string High { get; set; }
-        [JsonProperty(PropertyName = "ask")]
-        public string Ask { get; set; }
-        [JsonProperty(PropertyName = "low")]
-        public string Low { get; set; }
-        [JsonProperty(PropertyName = "pair")]
-        public string Pair { get; set; }
-        [JsonProperty(PropertyName = "volume30d")]
-        public string MonthlyVolume { get; set; }
-    }
-    class TickerResponse
-    {
-        [JsonProperty(PropertyName = "ok")]
-        public string Status { get; set; }
-        [JsonProperty(PropertyName = "e")]
-        public string Endpoint { get; set; }
-        [JsonProperty(PropertyName = "data")]
-        public List<TickerData> Data { get; set; }
-        
-    }
     class CexIntegration : IExchangeIntegration
     {
+        class TickerData
+        {
+            [JsonProperty(PropertyName = "volume")]
+            public string Volume { get; set; }
+            [JsonProperty(PropertyName = "last")]
+            public string Last { get; set; }
+            [JsonProperty(PropertyName = "timestamp")]
+            public string Timestamp { get; set; }
+            [JsonProperty(PropertyName = "bid")]
+            public string Bid { get; set; }
+            [JsonProperty(PropertyName = "high")]
+            public string High { get; set; }
+            [JsonProperty(PropertyName = "ask")]
+            public string Ask { get; set; }
+            [JsonProperty(PropertyName = "low")]
+            public string Low { get; set; }
+            [JsonProperty(PropertyName = "pair")]
+            public string Pair { get; set; }
+            [JsonProperty(PropertyName = "volume30d")]
+            public string MonthlyVolume { get; set; }
+        }
+        class TickerResponse
+        {
+            [JsonProperty(PropertyName = "ok")]
+            public string Status { get; set; }
+            [JsonProperty(PropertyName = "e")]
+            public string Endpoint { get; set; }
+            [JsonProperty(PropertyName = "data")]
+            public List<TickerData> Data { get; set; }
+        }
         private static readonly string BASE_URL = ApiConsumer.CEX_BASE_URL;
         public Task UpdateCoinDetails()
         {
@@ -59,6 +58,8 @@ namespace CryptoBackend.Integrations
                     return result;
                 });
             });
+
+            return task;
         }
 
         public Task UpdateCoinPrices()
