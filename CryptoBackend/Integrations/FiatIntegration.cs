@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CryptoBackend.Models;
 using CryptoBackend.Utils;
 using Newtonsoft.Json;
 
@@ -28,10 +29,29 @@ namespace CryptoBackend.Integrations
         public string Symbol { get; set; }  
     }
         private static readonly string BASE_URL = ApiConsumer.DOVIZ_BASE_URL;
-        public Task UpdateFiatDetails()
+        private Fiat fiat=null;
+  
+        public FiatIntegration(){
+            var fiats = Fiat.Find(symbol: "TRY");
+            if(fiats.Count > 0) {
+                fiat = fiats[0];
+            } else {
+                throw new System.NotImplementedException();
+            }
+
+        }
+        public void UpdateFiatDetails()
         {   var requestUri = BASE_URL+"/USD/latest";
             var responce = ApiConsumer.Get<FiatData>(requestUri).Result;
-            throw new System.NotImplementedException();
+            
+            if(fiat!=null){
+                var fiatData= new Fiat{
+                    Name = fiat.Name,
+                    Symbol = fiat.Symbol,
+                    PriceUsd =responce.Selling
+                };
+                fiatData.Save();
+            }
         }
     }
 }

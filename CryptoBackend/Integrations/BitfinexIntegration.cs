@@ -11,11 +11,11 @@ namespace CryptoBackend.Integrations
 
     class BitfinexIntegration : IExchangeIntegration
     {
-    class TickerData
+    private class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
         public string Volume { get; set; }
-        [JsonProperty(PropertyName = "last")]
+        [JsonProperty(PropertyName = "last_price")]
         public string Last { get; set; }
         [JsonProperty(PropertyName = "timestamp")]
         public string Timestamp { get; set; }
@@ -27,6 +27,8 @@ namespace CryptoBackend.Integrations
         public string Ask { get; set; }
         [JsonProperty(PropertyName = "low")]
         public string Low { get; set; }
+        [JsonProperty(PropertyName = "mid")]
+        public string Mid { get; set; }
     }
 
         private readonly string BASE_URL = ApiConsumer.BITFINEX_BASE_URL;
@@ -65,7 +67,7 @@ namespace CryptoBackend.Integrations
             "btcusd",
             "ethusd",       
         });   
-            List<TickerData> coinDetails=new List<TickerData>();
+            // List<TickerData> coinDetails=new List<TickerData>();
             // var requestUri=BASE_URL+"/symbols";
             // var response = ApiConsumer.Get<List<string>>(requestUri).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             // foreach (var symbolPair in response) {
@@ -74,12 +76,12 @@ namespace CryptoBackend.Integrations
             //     }
             // }
             
-            foreach (var symbolpair in symbolPairs) {
-                var requestUri=BASE_URL+"/pubticker/"+symbolpair;
+            foreach (var symbolPair in symbolPairs) {
+                var requestUri=BASE_URL+"/pubticker/"+symbolPair;
                 var response=ApiConsumer.Get<TickerData>(requestUri).Result;
-                coinDetails.Add(response);
+                // coinDetails.Add(response);
 
-                var symbol = symbolpair.Split("usd")[0];
+                var symbol = symbolPair.Split("usd")[0];
                 var coins = Coin.Find(symbol: symbol);
                 
                 if(coins.Count > 0){ 
