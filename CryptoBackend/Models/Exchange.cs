@@ -80,6 +80,30 @@ namespace CryptoBackend.Models
         public bool ShowWarning { get => showWarning; set => showWarning = value; }
         public bool BlockTrades { get => blockTrades; set => blockTrades = value; }
 
+        public static List<Exchange> Find(string name = null)
+        {
+            // TODO: Add get country
+            var sql = @"
+                select
+                id as Id,
+                name as Name,
+                show_warning as ShowWarning,
+                block_trades as BlockTrades
+                from exchanges as exchange
+                where 1=1
+            ";
+
+            if (name != null) {
+                sql += @" and exchange.name like concat('%', @Name, '%')";
+            }
+
+            sql += @" order by exchange.id";
+
+            return Database.Master.Many<Exchange>(sql, new {
+                Name = name
+            }).ToList();
+        }
+
         public void Save()
         {
             if (id == Guid.Empty) {

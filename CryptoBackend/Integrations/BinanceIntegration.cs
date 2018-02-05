@@ -8,7 +8,7 @@ namespace CryptoBackend.Integrations
     class BinanceIntegration : IExchangeIntegration
     {
         private static readonly string BASE_URL = ApiConsumer.BINANCE_BASE_URL;
-        public Task UpdateCoinDetails()
+        public void UpdateCoinDetails()
         {
             throw new System.NotImplementedException();
         }

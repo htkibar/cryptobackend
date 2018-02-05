@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CryptoBackend.Integrations;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CryptoBackend.Controllers
@@ -20,6 +22,8 @@ namespace CryptoBackend.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
+            var integration = new CexIntegration();
+            BackgroundJob.Enqueue(() => integration.UpdateCoinDetails());
             return "value";
         }
 

@@ -36,7 +36,7 @@ namespace CryptoBackend.Integrations
             "ethusd",
             "bchusd"
         });    
-        public Task UpdateCoinDetails()
+        public void UpdateCoinDetails()
         {
             List<TickerData> coinDetails=new List<TickerData>();
             foreach(var symbolPair in symbolPairs){

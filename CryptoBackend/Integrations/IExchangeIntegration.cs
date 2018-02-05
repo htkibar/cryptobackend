@@ -6,6 +6,6 @@ namespace CryptoBackend.Integrations
     {
         Task UpdateOrderbook();
         Task UpdateCoinPrices();
-        Task UpdateCoinDetails();
+        void UpdateCoinDetails();
     }
 }

@@ -18,7 +18,7 @@ namespace CryptoBackend.Models
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal TransferTimeMins { get => transferTimeMins; set => transferTimeMins = value; }
 
-        public static IEnumerable<Coin> Find(
+        public static List<Coin> Find(
             string name = null,
             string symbol = null
         ) {
@@ -45,7 +45,7 @@ namespace CryptoBackend.Models
             return Database.Master.Many<Coin>(sql, new {
                 Name = name,
                 Symbol = symbol
-            });
+            }).ToList();
         }
 
         public void Save()
@@ -57,14 +57,14 @@ namespace CryptoBackend.Models
                         id,
                         name,
                         symbol,
-                        transfer_time_mins,
+                        transfer_time_mins
                     )
                     values
                     (
                         @Id,
                         @Name,
                         @Symbol,
-                        @TransferTimeMins,
+                        @TransferTimeMins
                     )
                     returning id;
                 ", new {
@@ -78,7 +78,7 @@ namespace CryptoBackend.Models
                     update coins set
                     name=@Name,
                     symbol=@Symbol,
-                    transfer_time_mins=@TransferTimeMins,
+                    transfer_time_mins=@TransferTimeMins
                 ", new {
                     Name = name,
                     Symbol = symbol,

@@ -4,7 +4,7 @@ namespace CryptoBackend.Integrations
 {
     class BtcTurkIntegration : IExchangeIntegration
     {
-        public Task UpdateCoinDetails()
+        public void UpdateCoinDetails()
         {
             throw new System.NotImplementedException();
         }

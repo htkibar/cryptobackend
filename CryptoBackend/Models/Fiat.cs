@@ -18,6 +18,29 @@ namespace CryptoBackend.Models
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal PriceUsd { get => priceUsd; set => priceUsd = value; }
 
+        public static List<Fiat> Find(string symbol = null)
+        {
+            var sql = @"
+                select
+                id as Id,
+                name as Name,
+                symbol as Symbol,
+                price_usd as PriceUsd
+                from fiats as fiat
+                where 1=1
+            ";
+
+            if (symbol != null) {
+                sql += @" and fiat.symbol like concat('%', @Symbol, '%')";
+            }
+
+            sql += @" order by fiat.id";
+
+            return Database.Master.Many<Fiat>(sql, new {
+                Symbol = symbol
+            }).ToList();
+        }
+
         public void Save()
         {
             if (id == Guid.Empty) {

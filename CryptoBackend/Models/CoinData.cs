@@ -55,12 +55,11 @@ namespace CryptoBackend.Models
                     @Bid,
                     @LastPrice,
                     @PriceFiatId
-                )
-                returning id;
+                );
             ", new {
                 CoinId = Coin.Id,
                 ExchangeId = Exchange.Id,
-                UpdatedAt = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                UpdatedAt = DateTime.UtcNow,
                 Volume = Volume,
                 Low = Low,
                 High = High,

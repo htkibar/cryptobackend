@@ -18,8 +18,8 @@ namespace CryptoBackend.Utils
         public static readonly string KRAKEN_BASE_URL = "https://api.kraken.com/0";
         public static readonly string DOVIZ_BASE_URL ="http://www.doviz.com/api/v1/currencies";
 
-        public static Task<T> Get<T>(string requestUri) {
-            var task = new Task<T>(() => {
+        public async static Task<T> Get<T>(string requestUri) {
+            return await Task.Run<T>(() => {
                 var response = httpClient.GetAsync(requestUri).Result;
 
                 // Throw an error if not successful
@@ -28,8 +28,6 @@ namespace CryptoBackend.Utils
                 var content = response.Content.ReadAsStringAsync().Result;
                 return JsonConvert.DeserializeObject<T>(content);
             });
-
-            return task;
         }
         public static Task<T> Post<T>() {
             throw new NotImplementedException();

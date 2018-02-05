@@ -28,7 +28,7 @@ namespace CryptoBackend.Integrations
     }
         private static readonly string BASE_URL = ApiConsumer.GEMINI_BASE_URL;
         
-        public Task UpdateCoinDetails()
+        public void UpdateCoinDetails()
         {
             List<string> symbolPairs=new List<string>();
             List<TickerData> coinDetails=new List<TickerData>();
