@@ -7,10 +7,13 @@ namespace CryptoBackend.Integrations
 {
 
 
-       class TickerDataGemini
+
+    class GeminiIntegration : IExchangeIntegration
+    {  
+    class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
-        public VolumeGemini Volume { get; set; }
+        public Volume Volume { get; set; }
         [JsonProperty(PropertyName = "last")]
         public string Last { get; set; }
         [JsonProperty(PropertyName = "bid")]
@@ -23,7 +26,7 @@ namespace CryptoBackend.Integrations
         public string Pair { get; set; }
  
     }
-    class VolumeGemini
+    class Volume
     {
         [JsonProperty(PropertyName = "ok")]//check thisss??:!!!!!!!
         public string stmbol { get; set; }
@@ -33,14 +36,12 @@ namespace CryptoBackend.Integrations
         [JsonProperty(PropertyName = "timestamp")]
         public string Timestamp { get; set; }
     }
-    class GeminiIntegration : IExchangeIntegration
-    {
         private static readonly string BASE_URL = ApiConsumer.GEMINI_BASE_URL;
         
         public Task UpdateCoinDetails()
         {
            List<string> symbolPairs=new List<string>();
-            List<TickerDataGemini> coinDetails=new List<TickerDataGemini>();
+            List<TickerData> coinDetails=new List<TickerData>();
             var requestUrl=BASE_URL+"/symbols";
             var response = ApiConsumer.Get<List<string>>(requestUrl).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             foreach(var symbolPair in response){
@@ -51,7 +52,7 @@ namespace CryptoBackend.Integrations
             
             foreach(var symbolpair in symbolPairs){
                 requestUrl=BASE_URL+"/pubticker/"+symbolpair;
-                var tickerData=ApiConsumer.Get<TickerDataGemini>(requestUrl).Result;
+                var tickerData=ApiConsumer.Get<TickerData>(requestUrl).Result;
                 tickerData.Pair=symbolpair;
                 coinDetails.Add(tickerData);
 
