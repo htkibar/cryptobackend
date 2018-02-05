@@ -6,7 +6,10 @@ using Newtonsoft.Json;
 
 namespace CryptoBackend.Integrations
 {
-    class TickerDataBitstamp
+
+
+    class BitstampIntegration : IExchangeIntegration
+    {    class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
         public string Volume { get; set; }
@@ -24,9 +27,6 @@ namespace CryptoBackend.Integrations
         public string Low { get; set; }
         public string Pair { get; set; }
     }
-
-    class BitstampIntegration : IExchangeIntegration
-    {
         private static readonly string BASE_URL = ApiConsumer.BITSTAMP_BASE_URL;
         List<string> symbolPairs=new List<string>(new string[]
         {
@@ -38,10 +38,10 @@ namespace CryptoBackend.Integrations
         });    
         public Task UpdateCoinDetails()
         {
-            List<TickerDataBitstamp> coinDetails=new List<TickerDataBitstamp>();
+            List<TickerData> coinDetails=new List<TickerData>();
             foreach(var symbolPair in symbolPairs){
                 var requestUrl=BASE_URL+"/ticker/"+symbolPair;
-                var response = ApiConsumer.Get<TickerDataBitstamp>(requestUrl).Result; 
+                var response = ApiConsumer.Get<TickerData>(requestUrl).Result; 
                 response.Pair=symbolPair;
                 coinDetails.Add(response);
             }

@@ -5,7 +5,10 @@ using Newtonsoft.Json;
 
 namespace CryptoBackend.Integrations
 {
-    class TickerDataBitfinex
+
+    class BitfinexIntegration : IExchangeIntegration
+    {
+    class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
         public string Volume { get; set; }
@@ -23,15 +26,12 @@ namespace CryptoBackend.Integrations
         public string Low { get; set; }
         public string Pair { get; set; }
     }
-    class BitfinexIntegration : IExchangeIntegration
-    {
-
 
         private static readonly string BASE_URL = ApiConsumer.BITFINEX_BASE_URL;
         public Task UpdateCoinDetails()
         {
             List<string> symbolPairs=new List<string>();
-            List<TickerDataBitfinex> coinDetails=new List<TickerDataBitfinex>();
+            List<TickerData> coinDetails=new List<TickerData>();
             var requestUrl=BASE_URL+"/symbols";
             var response = ApiConsumer.Get<List<string>>(requestUrl).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             foreach(var symbolPair in response){
