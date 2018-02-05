@@ -32,17 +32,17 @@ namespace CryptoBackend.Integrations
         {
             List<string> symbolPairs=new List<string>();
             List<TickerData> coinDetails=new List<TickerData>();
-            var requestUrl=BASE_URL+"/symbols";
-            var response = ApiConsumer.Get<List<string>>(requestUrl).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
+            var requestUri=BASE_URL+"/symbols";
+            var response = ApiConsumer.Get<List<string>>(requestUri).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             foreach(var symbolPair in response){
                 if(symbolPair.Contains("usd")){
                     symbolPairs.Add(symbolPair);
                 }
             }
-            
+
             foreach(var symbolpair in symbolPairs){
-                requestUrl=BASE_URL+"/pubticker/"+symbolpair;
-                var tickerData=ApiConsumer.Get<TickerDataBitfinex>(requestUrl).Result;
+                requestUri=BASE_URL+"/pubticker/"+symbolpair;
+                var tickerData=ApiConsumer.Get<TickerData>(requestUri).Result;
                 tickerData.Pair=symbolpair;
                 coinDetails.Add(tickerData);
 

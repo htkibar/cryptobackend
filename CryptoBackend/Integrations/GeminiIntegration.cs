@@ -13,7 +13,7 @@ namespace CryptoBackend.Integrations
     class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
-        public Volume Volume { get; set; }
+        public Dictionary<string, object> Volume { get; set; } // TODO: Does it work?
         [JsonProperty(PropertyName = "last")]
         public string Last { get; set; }
         [JsonProperty(PropertyName = "bid")]
@@ -26,24 +26,14 @@ namespace CryptoBackend.Integrations
         public string Pair { get; set; }
  
     }
-    class Volume
-    {
-        [JsonProperty(PropertyName = "ok")]//check thisss??:!!!!!!!
-        public string stmbol { get; set; }
-        [JsonProperty(PropertyName = "usd")]
-        public string Usd { get; set; }
-        
-        [JsonProperty(PropertyName = "timestamp")]
-        public string Timestamp { get; set; }
-    }
         private static readonly string BASE_URL = ApiConsumer.GEMINI_BASE_URL;
         
         public Task UpdateCoinDetails()
         {
-           List<string> symbolPairs=new List<string>();
+            List<string> symbolPairs=new List<string>();
             List<TickerData> coinDetails=new List<TickerData>();
-            var requestUrl=BASE_URL+"/symbols";
-            var response = ApiConsumer.Get<List<string>>(requestUrl).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
+            var requestUri=BASE_URL+"/symbols";
+            var response = ApiConsumer.Get<List<string>>(requestUri).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             foreach(var symbolPair in response){
                 if(symbolPair.Contains("usd")){
                     symbolPairs.Add(symbolPair);
@@ -51,8 +41,8 @@ namespace CryptoBackend.Integrations
             }
             
             foreach(var symbolpair in symbolPairs){
-                requestUrl=BASE_URL+"/pubticker/"+symbolpair;
-                var tickerData=ApiConsumer.Get<TickerData>(requestUrl).Result;
+                requestUri=BASE_URL+"/pubticker/"+symbolpair;
+                var tickerData=ApiConsumer.Get<TickerData>(requestUri).Result;
                 tickerData.Pair=symbolpair;
                 coinDetails.Add(tickerData);
 

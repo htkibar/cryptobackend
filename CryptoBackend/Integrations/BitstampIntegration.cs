@@ -40,8 +40,8 @@ namespace CryptoBackend.Integrations
         {
             List<TickerData> coinDetails=new List<TickerData>();
             foreach(var symbolPair in symbolPairs){
-                var requestUrl=BASE_URL+"/ticker/"+symbolPair;
-                var response = ApiConsumer.Get<TickerData>(requestUrl).Result; 
+                var requestUri=BASE_URL+"/ticker/"+symbolPair;
+                var response = ApiConsumer.Get<TickerData>(requestUri).Result; 
                 response.Pair=symbolPair;
                 coinDetails.Add(response);
             }
