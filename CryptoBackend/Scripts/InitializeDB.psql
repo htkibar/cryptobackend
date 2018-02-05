@@ -25,11 +25,7 @@ CREATE TABLE coins
     PRIMARY KEY,
   name               VARCHAR(255)      NOT NULL,
   symbol             VARCHAR(255)      NOT NULL,
-  price              NUMERIC           NOT NULL,
-  transfer_time_mins NUMERIC DEFAULT 0 NOT NULL,
-  price_currency_id  UUID              NOT NULL
-    CONSTRAINT coins_fiats_id_fk
-    REFERENCES fiats
+  transfer_time_mins NUMERIC DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE exchanges
@@ -43,19 +39,6 @@ CREATE TABLE exchanges
     REFERENCES countries,
   show_warning BOOLEAN DEFAULT FALSE NOT NULL,
   block_trades BOOLEAN DEFAULT FALSE NOT NULL
-);
-
-CREATE TABLE transfer_times
-(
-  exchange_id           UUID              NOT NULL
-    CONSTRAINT transfer_times_exchanges_id_fk
-    REFERENCES exchanges,
-  coin_id               UUID              NOT NULL
-    CONSTRAINT transfer_times_coins_id_fk
-    REFERENCES coins,
-  minimum_confirmations INTEGER DEFAULT 0 NOT NULL,
-  CONSTRAINT transfer_times_exchange_id_coin_id_pk
-  PRIMARY KEY (exchange_id, coin_id)
 );
 
 CREATE TABLE fiat_dw_options
@@ -98,7 +81,39 @@ CREATE TABLE coin_dw_options
   withdraw_fee_fixed      NUMERIC DEFAULT 0               NOT NULL,
   depositable             BOOLEAN DEFAULT FALSE           NOT NULL,
   withdrawable            BOOLEAN DEFAULT FALSE           NOT NULL,
+  symbol                  VARCHAR(25)                     NOT NULL,
   CONSTRAINT coin_dw_options_exchange_id_coin_id_pk
   PRIMARY KEY (exchange_id, coin_id)
+);
+
+CREATE TABLE coin_data
+(
+  coin_id       UUID                    NOT NULL,
+  exchange_id   UUID                    NOT NULL,
+  updated_at    TIMESTAMP DEFAULT now() NOT NULL,
+  volume        NUMERIC                 NOT NULL,
+  low           NUMERIC                 NOT NULL,
+  high          NUMERIC                 NOT NULL,
+  ask           NUMERIC                 NOT NULL,
+  bid           NUMERIC                 NOT NULL,
+  last_price    NUMERIC                 NOT NULL,
+  price_fiat_id UUID                    NOT NULL
+    CONSTRAINT coin_data_fiats_id_fk
+    REFERENCES fiats,
+  CONSTRAINT coin_data_exchange_id_coin_id_pk
+  PRIMARY KEY (exchange_id, coin_id)
+);
+
+CREATE UNIQUE INDEX coin_data_coin_id_uindex
+  ON coin_data (coin_id);
+
+CREATE UNIQUE INDEX coin_data_exchange_id_uindex
+  ON coin_data (exchange_id);
+
+CREATE TABLE transfer_times
+(
+  exchange_id           UUID              NOT NULL,
+  coin_id               UUID              NOT NULL,
+  minimum_confirmations INTEGER DEFAULT 0 NOT NULL
 );
 
