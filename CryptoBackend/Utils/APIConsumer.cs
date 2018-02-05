@@ -16,6 +16,7 @@ namespace CryptoBackend.Utils
         public static readonly string COINBASE_BASE_URL = "https://api.coinbase.com/v2";
         public static readonly string GEMINI_BASE_URL = "https://api.gemini.com/v1";
         public static readonly string KRAKEN_BASE_URL = "https://api.kraken.com/0";
+        public static readonly string DOVIZ_BASE_URL ="http://www.doviz.com/api/v1/currencies";
 
         public static Task<T> Get<T>(string requestUri) {
             var task = new Task<T>(() => {

@@ -5,7 +5,10 @@ using Newtonsoft.Json;
 
 namespace CryptoBackend.Integrations
 {
-    class TickerDataBitfinex
+
+    class BitfinexIntegration : IExchangeIntegration
+    {
+    class TickerData
     {
         [JsonProperty(PropertyName = "volume")]
         public string Volume { get; set; }
@@ -23,26 +26,23 @@ namespace CryptoBackend.Integrations
         public string Low { get; set; }
         public string Pair { get; set; }
     }
-    class BitfinexIntegration : IExchangeIntegration
-    {
-
 
         private static readonly string BASE_URL = ApiConsumer.BITFINEX_BASE_URL;
         public Task UpdateCoinDetails()
         {
             List<string> symbolPairs=new List<string>();
-            List<TickerDataBitfinex> coinDetails=new List<TickerDataBitfinex>();
-            var requestUrl=BASE_URL+"/symbols";
-            var response = ApiConsumer.Get<List<string>>(requestUrl).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
+            List<TickerData> coinDetails=new List<TickerData>();
+            var requestUri=BASE_URL+"/symbols";
+            var response = ApiConsumer.Get<List<string>>(requestUri).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
             foreach(var symbolPair in response){
                 if(symbolPair.Contains("usd")){
                     symbolPairs.Add(symbolPair);
                 }
             }
-            
+
             foreach(var symbolpair in symbolPairs){
-                requestUrl=BASE_URL+"/pubticker/"+symbolpair;
-                var tickerData=ApiConsumer.Get<TickerDataBitfinex>(requestUrl).Result;
+                requestUri=BASE_URL+"/pubticker/"+symbolpair;
+                var tickerData=ApiConsumer.Get<TickerData>(requestUri).Result;
                 tickerData.Pair=symbolpair;
                 coinDetails.Add(tickerData);
 
