@@ -7,34 +7,47 @@ using Microsoft.AspNetCore.Mvc;
 using CryptoBackend.Models;
 namespace CryptoBackend.Controllers
 {
-
-    class ArbitragesController
+    [Route("api/[controller]")]
+    class ArbitragesController : Controller
     {     
-        List<Arbitrage> exchangeProfitList=new List<Arbitrage>();
         public decimal CalculateProfitPercentage(decimal priceFrom,decimal priceTo){
-            return ((100*(priceTo-priceFrom))/priceFrom);
+            return (((priceTo-priceFrom))/priceFrom);
         }
-        public decimal PricesToUsd(CoinData coin){  
+        public decimal PriceToUsd(CoinData coin){  
             
             return coin.Fiat.PriceUsd;
         }
-        public void UpdateArbitrage(){
-            
- 
-            
+        List<CoinData> coinData;
 
-         
-        }
-        public List<Arbitrage> GetArbitrageList() {
-            List<Arbitrage> exchangeProfitList=new List<Arbitrage>();
+        [HttpGet]
+        public List<Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] Fiat VolumeFiat) {
+            List<Arbitrage> arbitrageList=new List<Arbitrage>();
 
             var coins =Coin.Find();
-            
-
-
-
-            return exchangeProfitList;
+            // 
+            foreach(var coin in coins) {
+                for (int i = 0; i < coin.LastData.Count-1; i++)
+                {
+                    for (int j = i+1; j < coin.LastData.Count; j++)
+                    {   var sellingPrice = coin.LastData[i].Bid;
+                        var buyingPrice = coin.LastData[j].Ask;
+                        var expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+                        Arbitrage arbitrage= new Arbitrage{
+                            FromCoinData = coin.LastData[i],
+                            ToCoinData = coin.LastData[j],
+                            ExpectedProfit = expectedProfitPercentage,
+                            Volume = volume,
+                            VolumeFiat = VolumeFiat,
+                            CreatedAt = DateTime.Now
+                            
+                        };
+                        arbitrageList.Add(arbitrage);   
+                        arbitrage.Save();
+                    }
+                }
+            }
+         
+            return arbitrageList;
         }
-
     }
 }

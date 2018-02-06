@@ -100,7 +100,36 @@ namespace CryptoBackend.Models
 
         public void Save()
         {
-
+            Database.Master.Run<Guid>(@"
+                insert into coin_data
+                (
+                    id,
+                    from_coin_data_id,
+                    to_coin_data_id,
+                    expected_profit,
+                    volume,
+                    volume_fiat_id
+                    created_id
+                )
+                values
+                (
+                    @Id,
+                    @FromCoinDataId,
+                    @ToCoinDataId,
+                    @ExpectedProfit,
+                    @Volume
+                    @VolumeFiatId,
+                    @CreatedId
+                );
+            ", new {
+                Id = Guid.NewGuid(),
+                FromCoinDataId = FromCoinData.Id,
+                ToCoinDataId = ToCoinData.Id,
+                ExpectedProfit = ExpectedProfit,
+                Volume = Volume,
+                VolumeFiatId = volumeFiat.Id,
+                CreatedId = DateTime.Now
+            });
         }
     }
 }
