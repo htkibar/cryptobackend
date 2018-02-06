@@ -116,8 +116,34 @@ CREATE UNIQUE INDEX coin_data_id_uindex
 
 CREATE TABLE transfer_times
 (
-  exchange_id           UUID              NOT NULL,
-  coin_id               UUID              NOT NULL,
+  exchange_id           UUID              NOT NULL
+    CONSTRAINT transfer_times_exchanges_id_fk
+    REFERENCES exchanges,
+  coin_id               UUID              NOT NULL
+    CONSTRAINT transfer_times_coins_id_fk
+    REFERENCES coins,
   minimum_confirmations INTEGER DEFAULT 0 NOT NULL
 );
+
+CREATE TABLE arbitrages
+(
+  id                UUID                    NOT NULL
+    CONSTRAINT arbitrages_pkey
+    PRIMARY KEY,
+  from_coin_data_id UUID                    NOT NULL
+    CONSTRAINT arbitrages_from_coin_data_id_fk
+    REFERENCES coin_data,
+  to_coin_data_id   UUID                    NOT NULL
+    CONSTRAINT arbitrages_to_coin_data_id_fk
+    REFERENCES coin_data,
+  expected_profit   NUMERIC                 NOT NULL,
+  volume            NUMERIC DEFAULT 0       NOT NULL,
+  volume_fiat_id    UUID                    NOT NULL
+    CONSTRAINT arbitrages_fiats_id_fk
+    REFERENCES fiats,
+  created_at        TIMESTAMP DEFAULT now() NOT NULL
+);
+
+CREATE UNIQUE INDEX arbitrages_id_uindex
+  ON arbitrages (id);
 
