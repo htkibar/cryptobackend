@@ -9,7 +9,7 @@ namespace CryptoBackend.Integrations
 {
     class CexIntegration : IExchangeIntegration
     {
-        class TickerData
+        private class TickerData
         {
             [JsonProperty(PropertyName = "volume")]
             public string Volume { get; set; }
@@ -30,7 +30,7 @@ namespace CryptoBackend.Integrations
             [JsonProperty(PropertyName = "volume30d")]
             public string MonthlyVolume { get; set; }
         }
-        class TickerResponse
+        private class TickerResponse
         {
             [JsonProperty(PropertyName = "ok")]
             public string Status { get; set; }
