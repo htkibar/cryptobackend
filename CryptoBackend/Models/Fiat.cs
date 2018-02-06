@@ -18,6 +18,27 @@ namespace CryptoBackend.Models
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal PriceUsd { get => priceUsd; set => priceUsd = value; }
 
+        public static Fiat Find(Guid id)
+        {
+            var fiat = Database.Master.One<Fiat>(@"
+                select
+                id as Id,
+                name as Name,
+                symbol as Symbol,
+                price_usd as PriceUsd
+                from fiats as fiat
+                where id = @FiatId
+            ", new {
+                FiatId = id
+            });
+
+            if (object.Equals(fiat, default(Fiat))) {
+                return null;
+            } else {
+                return fiat;
+            }
+        }
+
         public static List<Fiat> Find(string symbol = null)
         {
             var sql = @"

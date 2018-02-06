@@ -12,16 +12,25 @@ namespace CryptoBackend.Models
         private string name;
         private string symbol;
         private decimal transferTimeMins;
+        private List<CoinData> lastData = null;
 
         public Guid Id { get => id; set => id = value; }
         public string Name { get => name; set => name = value; }
         public string Symbol { get => symbol; set => symbol = value; }
         public decimal TransferTimeMins { get => transferTimeMins; set => transferTimeMins = value; }
+        public List<CoinData> LastData {
+            get
+            {
+                lastData = CoinData.Find(coinId: id);
+
+                return lastData;
+            }
+            set => lastData = value;
+        }
 
         public static List<Coin> Find(
             string name = null,
-            string symbol = null,
-            Guid? id = null
+            string symbol = null
         ) {
             var sql = @"
                 select
@@ -41,17 +50,33 @@ namespace CryptoBackend.Models
                 sql += @" and coin.symbol like @Symbol";
             }
 
-            if (id != null) {
-                sql += @" and coin.id = @CoinId";
-            }
-
             sql += @" order by coin.id";
 
             return Database.Master.Many<Coin>(sql, new {
                 Name = name,
-                Symbol = symbol,
-                CoinId = id
+                Symbol = symbol
             }).ToList();
+        }
+
+        public static Coin Find(Guid id)
+        {
+            var coin = Database.Master.One<Coin>(@"
+                select
+                coin.id as Id,
+                coin.name as Name,
+                coin.symbol as Symbol,
+                coin.transfer_time_mins as TransferTimeMins
+                from coins as coin
+                where coin.id = @CoinId
+            ", new {
+                CoinId = id
+            });
+
+            if (object.Equals(coin, default(Coin))) {
+                return null;
+            } else {
+                return coin;
+            }
         }
 
         public void Save()
