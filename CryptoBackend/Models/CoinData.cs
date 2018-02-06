@@ -5,6 +5,7 @@ namespace CryptoBackend.Models
 {
     public class CoinData
     {
+        private Guid id { get; set; }
         private Coin coin { get; set; }
         private Exchange exchange { get; set; }
         private DateTime updatedAt { get; set; }
@@ -16,6 +17,7 @@ namespace CryptoBackend.Models
         private decimal bid { get; set; }
         private decimal lastPrice { get; set; }
 
+        public Guid Id { get; set; }
         public Coin Coin { get => coin; set => coin = value; }
         public Exchange Exchange { get => exchange; set => exchange = value; }
         public DateTime UpdatedAt { get => updatedAt; set => updatedAt = value; }
@@ -32,6 +34,7 @@ namespace CryptoBackend.Models
             Database.Master.Run<Guid>(@"
                 insert into coin_data
                 (
+                    id,
                     coin_id,
                     exchange_id,
                     updated_at,
@@ -45,6 +48,7 @@ namespace CryptoBackend.Models
                 )
                 values
                 (
+                    @Id,
                     @CoinId,
                     @ExchangeId,
                     @UpdatedAt,
@@ -57,6 +61,7 @@ namespace CryptoBackend.Models
                     @PriceFiatId
                 );
             ", new {
+                Id = Guid.NewGuid(),
                 CoinId = Coin.Id,
                 ExchangeId = Exchange.Id,
                 UpdatedAt = DateTime.UtcNow,

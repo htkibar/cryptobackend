@@ -20,7 +20,8 @@ namespace CryptoBackend.Models
 
         public static List<Coin> Find(
             string name = null,
-            string symbol = null
+            string symbol = null,
+            Guid? id = null
         ) {
             var sql = @"
                 select
@@ -40,11 +41,16 @@ namespace CryptoBackend.Models
                 sql += @" and coin.symbol like @Symbol";
             }
 
+            if (id != null) {
+                sql += @" and coin.id = @CoinId";
+            }
+
             sql += @" order by coin.id";
 
             return Database.Master.Many<Coin>(sql, new {
                 Name = name,
-                Symbol = symbol
+                Symbol = symbol,
+                CoinId = id
             }).ToList();
         }
 

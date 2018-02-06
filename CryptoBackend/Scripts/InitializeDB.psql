@@ -88,8 +88,12 @@ CREATE TABLE coin_dw_options
 
 CREATE TABLE coin_data
 (
-  coin_id       UUID                    NOT NULL,
-  exchange_id   UUID                    NOT NULL,
+  coin_id       UUID                    NOT NULL
+    CONSTRAINT coin_data_coins_id_fk
+    REFERENCES coins,
+  exchange_id   UUID                    NOT NULL
+    CONSTRAINT coin_data_exchanges_id_fk
+    REFERENCES exchanges,
   updated_at    TIMESTAMP DEFAULT now() NOT NULL,
   volume        NUMERIC                 NOT NULL,
   low           NUMERIC                 NOT NULL,
@@ -100,15 +104,15 @@ CREATE TABLE coin_data
   price_fiat_id UUID                    NOT NULL
     CONSTRAINT coin_data_fiats_id_fk
     REFERENCES fiats,
+  id            UUID                    NOT NULL
+    CONSTRAINT coin_data_id_pk
+    PRIMARY KEY,
   CONSTRAINT coin_data_exchange_id_coin_id_pk
-  PRIMARY KEY (exchange_id, coin_id)
+  UNIQUE (exchange_id, coin_id)
 );
 
-CREATE UNIQUE INDEX coin_data_coin_id_uindex
-  ON coin_data (coin_id);
-
-CREATE UNIQUE INDEX coin_data_exchange_id_uindex
-  ON coin_data (exchange_id);
+CREATE UNIQUE INDEX coin_data_id_uindex
+  ON coin_data (id);
 
 CREATE TABLE transfer_times
 (
