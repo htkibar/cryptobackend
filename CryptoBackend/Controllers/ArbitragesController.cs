@@ -26,22 +26,33 @@ namespace CryptoBackend.Controllers
             var coins = Coin.Find();
             // 
             foreach(var coin in coins) {
+                // TODO: THIS DOESNT WORK AT ALLLLLLLL!!
                 for (int i = 0; i < coin.LastData.Count-1; i++)
                 {
                     for (int j = i+1; j < coin.LastData.Count; j++)
                     {   var sellingPrice = coin.LastData[i].Bid;
                         var buyingPrice = coin.LastData[j].Ask;
+                        CoinData from;
+                        CoinData to;
                         var expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+
+                        if (expectedProfitPercentage > 0) {
+                            from = coin.LastData[i];
+                            to = coin.LastData[j];
+                        } else {
+                            from = coin.LastData[j];
+                            to = coin.LastData[i];
+                            expectedProfitPercentage = CalculateProfitPercentage(buyingPrice, sellingPrice);
+                        }
                         Arbitrage arbitrage= new Arbitrage{
-                            FromCoinData = coin.LastData[i],
-                            ToCoinData = coin.LastData[j],
+                            FromCoinData = from,
+                            ToCoinData = to,
                             ExpectedProfit = expectedProfitPercentage,
                             Volume = volume,
                             VolumeFiat = volumeFiat,
                             CreatedAt = DateTime.Now
                         };
                         arbitrageList.Add(new ResponseModels.Arbitrage{
-                            Id = arbitrage.Id,
                             FromExchange = arbitrage.FromCoinData.Exchange.Name,
                             ToExchange = arbitrage.ToCoinData.Exchange.Name,
                             Coin = arbitrage.FromCoinData.Coin.Name,

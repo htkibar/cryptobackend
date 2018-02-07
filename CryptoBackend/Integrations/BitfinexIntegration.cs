@@ -62,7 +62,9 @@ namespace CryptoBackend.Integrations
             List<string> symbolPairs=new List<string>(new string[]
             {
                 "btcusd",
-                "ethusd",       
+                "ethusd",
+                "dshusd",
+                "xrpusd"
             });   
             // List<TickerData> coinDetails=new List<TickerData>();
             // var requestUri=BASE_URL+"/symbols";
@@ -78,6 +80,10 @@ namespace CryptoBackend.Integrations
                 // coinDetails.Add(response);
 
                 var symbol = symbolPair.Split("usd")[0];
+
+                if (symbol == "dsh") {
+                    symbol = "dash";
+                }
                 var coins = Coin.Find(symbol: symbol.ToUpper());
                 
                 if(coins.Count > 0){ 

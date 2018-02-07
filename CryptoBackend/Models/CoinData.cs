@@ -105,8 +105,9 @@ namespace CryptoBackend.Models
                 from coin_data as data
                 left outer join coin_data compare_data
                 on data.exchange_id = compare_data.exchange_id
-                and data.updated_at > compare_data.updated_at
-                where compare_data.exchange_id is not null
+                and data.updated_at < compare_data.updated_at
+                and data.coin_id = compare_data.coin_id
+                where compare_data.exchange_id is null
             ";
 
             if (exchangeId != null) {

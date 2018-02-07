@@ -24,8 +24,8 @@ namespace CryptoBackend.Controllers
         {
             var cex = new CexIntegration();
             var bitfinex = new BitfinexIntegration();
-            BackgroundJob.Enqueue(() => cex.UpdateCoinDetails());
-            BackgroundJob.Enqueue(() => bitfinex.UpdateCoinDetails());
+            RecurringJob.AddOrUpdate(() => cex.UpdateCoinDetails(), Cron.Minutely);
+            RecurringJob.AddOrUpdate(() => bitfinex.UpdateCoinDetails(), Cron.Minutely);
             return "ok";
         }
 

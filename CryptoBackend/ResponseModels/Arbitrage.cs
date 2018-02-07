@@ -6,7 +6,6 @@ namespace CryptoBackend.ResponseModels
 {
     public class Arbitrage
     {
-        public Guid Id;
         public string FromExchange;
         public string ToExchange;
         public string Coin;
