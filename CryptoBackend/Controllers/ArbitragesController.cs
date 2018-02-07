@@ -8,22 +8,22 @@ using CryptoBackend.Models;
 namespace CryptoBackend.Controllers
 {
     [Route("api/[controller]")]
-    class ArbitragesController : Controller
+    public class ArbitragesController : Controller
     {     
         public decimal CalculateProfitPercentage(decimal priceFrom,decimal priceTo){
             return (((priceTo-priceFrom))/priceFrom);
         }
         public decimal PriceToUsd(CoinData coin){  
-            
             return coin.Fiat.PriceUsd;
         }
         List<CoinData> coinData;
 
         [HttpGet]
-        public List<Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] Fiat VolumeFiat) {
-            List<Arbitrage> arbitrageList=new List<Arbitrage>();
+        public List<ResponseModels.Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] string fiatSymbol) {
+            List<ResponseModels.Arbitrage> arbitrageList=new List<ResponseModels.Arbitrage>();
+            var volumeFiat = Fiat.Find(symbol: fiatSymbol)[0];
 
-            var coins =Coin.Find();
+            var coins = Coin.Find();
             // 
             foreach(var coin in coins) {
                 for (int i = 0; i < coin.LastData.Count-1; i++)
@@ -37,11 +37,18 @@ namespace CryptoBackend.Controllers
                             ToCoinData = coin.LastData[j],
                             ExpectedProfit = expectedProfitPercentage,
                             Volume = volume,
-                            VolumeFiat = VolumeFiat,
+                            VolumeFiat = volumeFiat,
                             CreatedAt = DateTime.Now
-                            
                         };
-                        arbitrageList.Add(arbitrage);   
+                        arbitrageList.Add(new ResponseModels.Arbitrage{
+                            Id = arbitrage.Id,
+                            FromExchange = arbitrage.FromCoinData.Exchange.Name,
+                            ToExchange = arbitrage.ToCoinData.Exchange.Name,
+                            Coin = arbitrage.FromCoinData.Coin.Name,
+                            ExpectedProfit = arbitrage.ExpectedProfit,
+                            Volume = arbitrage.Volume,
+                            CreatedAt = arbitrage.CreatedAt
+                        });   
                         arbitrage.Save();
                     }
                 }

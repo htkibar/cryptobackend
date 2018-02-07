@@ -69,7 +69,7 @@ namespace CryptoBackend.Models
         
         public static List<CoinOption> Find(Guid exchangeId)
         {
-            return Database.Master.Many<CoinOption>(@"
+            var coinOptions = Database.Master.Many<CoinOption>(@"
                 select
                 option.exchange_id as ExchangeId,
                 option.coin_id as CoinId,
@@ -90,6 +90,8 @@ namespace CryptoBackend.Models
             ", new {
                 ExchangeId = exchangeId
             }).ToList();
+
+            return coinOptions;
         }
 
         public Task Save()

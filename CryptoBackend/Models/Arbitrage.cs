@@ -101,15 +101,15 @@ namespace CryptoBackend.Models
         public void Save()
         {
             Database.Master.Run<Guid>(@"
-                insert into coin_data
+                insert into arbitrages
                 (
                     id,
                     from_coin_data_id,
                     to_coin_data_id,
                     expected_profit,
                     volume,
-                    volume_fiat_id
-                    created_id
+                    volume_fiat_id,
+                    created_at
                 )
                 values
                 (
@@ -117,10 +117,11 @@ namespace CryptoBackend.Models
                     @FromCoinDataId,
                     @ToCoinDataId,
                     @ExpectedProfit,
-                    @Volume
+                    @Volume,
                     @VolumeFiatId,
-                    @CreatedId
-                );
+                    @CreatedAt
+                )
+                returning id;
             ", new {
                 Id = Guid.NewGuid(),
                 FromCoinDataId = FromCoinData.Id,
@@ -128,7 +129,7 @@ namespace CryptoBackend.Models
                 ExpectedProfit = ExpectedProfit,
                 Volume = Volume,
                 VolumeFiatId = volumeFiat.Id,
-                CreatedId = DateTime.Now
+                CreatedAt = DateTime.Now
             });
         }
     }

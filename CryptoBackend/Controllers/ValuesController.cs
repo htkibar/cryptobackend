@@ -22,9 +22,11 @@ namespace CryptoBackend.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            var integration = new CexIntegration();
-            BackgroundJob.Enqueue(() => integration.UpdateCoinDetails());
-            return "value";
+            var cex = new CexIntegration();
+            var bitfinex = new BitfinexIntegration();
+            BackgroundJob.Enqueue(() => cex.UpdateCoinDetails());
+            BackgroundJob.Enqueue(() => bitfinex.UpdateCoinDetails());
+            return "ok";
         }
 
         // POST api/values
