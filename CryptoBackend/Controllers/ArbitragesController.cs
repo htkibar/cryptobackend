@@ -24,26 +24,31 @@ namespace CryptoBackend.Controllers
             var volumeFiat = Fiat.Find(symbol: fiatSymbol)[0];
 
             var coins = Coin.Find();
-            // 
             foreach(var coin in coins) {
                 // TODO: THIS DOESNT WORK AT ALLLLLLLL!!
                 for (int i = 0; i < coin.LastData.Count-1; i++)
                 {
                     for (int j = i+1; j < coin.LastData.Count; j++)
-                    {   var sellingPrice = coin.LastData[i].Bid;
-                        var buyingPrice = coin.LastData[j].Ask;
-                        CoinData from;
+                    {   CoinData from;
                         CoinData to;
-                        var expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
-
-                        if (expectedProfitPercentage > 0) {
-                            from = coin.LastData[i];
-                            to = coin.LastData[j];
-                        } else {
+                        decimal expectedProfitPercentage;
+                        if( ((coin.LastData[i].Ask-coin.LastData[j].Bid)/coin.LastData[j].Bid) > 
+                            ((coin.LastData[j].Ask-coin.LastData[i].Bid)/coin.LastData[i].Bid) ){
                             from = coin.LastData[j];
                             to = coin.LastData[i];
-                            expectedProfitPercentage = CalculateProfitPercentage(buyingPrice, sellingPrice);
+                            var sellingPrice = coin.LastData[i].Bid;
+                            var buyingPrice = coin.LastData[j].Ask;
+                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+                        } else {
+                            from = coin.LastData[i];
+                            to = coin.LastData[j];
+                            var sellingPrice = coin.LastData[j].Bid;
+                            var buyingPrice = coin.LastData[i].Ask;
+                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         }
+
+                        
+                    
                         Arbitrage arbitrage= new Arbitrage{
                             FromCoinData = from,
                             ToCoinData = to,
