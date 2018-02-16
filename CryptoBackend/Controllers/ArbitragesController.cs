@@ -10,8 +10,8 @@ namespace CryptoBackend.Controllers
     [Route("api/[controller]")]
     public class ArbitragesController : Controller
     {     
-        public decimal CalculateProfitPercentage(decimal priceFrom,decimal priceTo){
-            return (((priceTo-priceFrom))/priceFrom);
+        public decimal CalculateProfitPercentage(decimal sellingPrice,decimal buyingPrice){
+            return (((sellingPrice-buyingPrice))/buyingPrice);
         }
         public decimal PriceToUsd(CoinData coin){  
             return coin.Fiat.PriceUsd;
@@ -32,8 +32,8 @@ namespace CryptoBackend.Controllers
                     {   CoinData from;
                         CoinData to;
                         decimal expectedProfitPercentage;
-                        if( ((coin.LastData[i].Ask-coin.LastData[j].Bid)/coin.LastData[j].Bid) > 
-                            ((coin.LastData[j].Ask-coin.LastData[i].Bid)/coin.LastData[i].Bid) ){
+                        if( ((coin.LastData[i].Bid-coin.LastData[j].Ask)/coin.LastData[j].Ask) > 
+                            ((coin.LastData[j].Bid-coin.LastData[i].Ask)/coin.LastData[i].Ask) ){
                             from = coin.LastData[j];
                             to = coin.LastData[i];
                             var sellingPrice = coin.LastData[i].Bid;
@@ -70,7 +70,7 @@ namespace CryptoBackend.Controllers
                 }
             }
          
-            return arbitrageList;
+            return arbitrageList.OrderByDescending(arbitrage => arbitrage.ExpectedProfit).ToList();
         }
     }
 }
