@@ -12,7 +12,7 @@ namespace CryptoBackend.Utils
         public static readonly string BITFINEX_BASE_URL = "https://api.bitfinex.com/v1"; // control v2 again
         public static readonly string BINANCE_BASE_URL = "https://api.binance.com/api/v1";
         public static readonly string BITSTAMP_BASE_URL = "https://www.bitstamp.net/api/v2";
-        public static readonly string BTCTURK_BASE_URL = "";
+        public static readonly string BTCTURK_BASE_URL = "https://www.btcturk.com/api";
         public static readonly string COINBASE_BASE_URL = "https://api.coinbase.com/v2";
         public static readonly string GEMINI_BASE_URL = "https://api.gemini.com/v1";
         public static readonly string KRAKEN_BASE_URL = "https://api.kraken.com/0";
