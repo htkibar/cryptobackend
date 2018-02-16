@@ -10,7 +10,7 @@ namespace CryptoBackend.Utils
         private static readonly HttpClient httpClient = new HttpClient();
         public static readonly string CEX_BASE_URL = "https://cex.io/api";
         public static readonly string BITFINEX_BASE_URL = "https://api.bitfinex.com/v1"; // control v2 again
-        public static readonly string BINANCE_BASE_URL = "https://api.binance.com";
+        public static readonly string BINANCE_BASE_URL = "https://api.binance.com/api/v1";
         public static readonly string BITSTAMP_BASE_URL = "https://www.bitstamp.net/api/v2";
         public static readonly string BTCTURK_BASE_URL = "";
         public static readonly string COINBASE_BASE_URL = "https://api.coinbase.com/v2";
