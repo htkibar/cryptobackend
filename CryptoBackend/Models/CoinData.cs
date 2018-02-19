@@ -5,6 +5,11 @@ using CryptoBackend.Utils;
 
 namespace CryptoBackend.Models
 {
+    public class BidAskResult
+    {
+        public decimal Bid { get; set; }
+        public decimal Ask { get; set; }
+    }
     public class CoinData
     {
         private Guid id;
@@ -105,9 +110,47 @@ namespace CryptoBackend.Models
             throw new NotImplementedException();
         }
 
-        public static List<CoinData> Find(
+        public static BidAskResult GetBidAskForExchangeCoin(
             Guid? exchangeId = null,
             Guid? coinId = null
+        ) {
+            var sql = @"
+                select
+                data.ask as Ask,
+                data.bid as Bid
+                from coin_data as data
+                left outer join coin_data compare_data
+                on data.exchange_id = compare_data.exchange_id
+                and data.updated_at < compare_data.updated_at
+                and data.coin_id = compare_data.coin_id
+                where compare_data.exchange_id is null
+            ";
+
+            if (exchangeId != null) {
+                sql += @" and data.exchange_id = @ExchangeId";
+            }
+
+            if (coinId != null) {
+                sql += @" and data.coin_id = @CoinId";
+            }
+
+            sql += @"
+                order by data.updated_at desc
+                limit 1
+                offset 0
+            ";
+
+            return Database.Master.One<BidAskResult>(sql, new {
+                ExchangeId = exchangeId,
+                CoinId = coinId
+            });
+        }
+
+        public static List<CoinData> Find(
+            Guid? exchangeId = null,
+            Guid? coinId = null,
+            int limit = 100,
+            int offset = 0
         ) {
             var sql = @"
                 select
@@ -138,11 +181,17 @@ namespace CryptoBackend.Models
                 sql += @" and data.coin_id = @CoinId";
             }
 
-            sql += @" order by data.updated_at desc";
+            sql += @"
+                order by data.updated_at desc
+                limit @Limit
+                offset @Offset
+            ";
 
             return Database.Master.Many<CoinData>(sql, new {
                 ExchangeId = exchangeId,
-                CoinId = coinId
+                CoinId = coinId,
+                Limit = limit,
+                Offset = offset
             }).ToList();
         }
 

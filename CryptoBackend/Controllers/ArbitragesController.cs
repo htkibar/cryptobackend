@@ -19,42 +19,110 @@ namespace CryptoBackend.Controllers
         List<CoinData> coinData;
 
         [HttpGet]
-        public List<ResponseModels.Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] string fiatSymbol) {
-            List<ResponseModels.Arbitrage> arbitrageList=new List<ResponseModels.Arbitrage>();
-            var volumeFiat = Fiat.Find(symbol: fiatSymbol)[0];
+        public List<ResponseModels.Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] string symbol, [FromQuery] bool isCoin) {
+            List<ResponseModels.Arbitrage> arbitrageList = new List<ResponseModels.Arbitrage>();
+            Fiat volumeFiat = null;
+            Coin volumeCoin = null;
+
+            if (isCoin) {
+                volumeCoin = Coin.Find(symbol: symbol)[0];
+            } else {
+                volumeFiat = Fiat.Find(symbol: symbol)[0];
+            }
 
             var coins = Coin.Find();
             foreach(var coin in coins) {
                 // TODO: THIS DOESNT WORK AT ALLLLLLLL!!
-                for (int i = 0; i < coin.LastData.Count-1; i++)
-                {
-                    for (int j = i+1; j < coin.LastData.Count; j++)
-                    {   CoinData from;
+                for (int i = 0; i < coin.LastData.Count-1; i++) {
+                    for (int j = i+1; j < coin.LastData.Count; j++) {
+                        CoinData from;
                         CoinData to;
+
+                        CoinData first = coin.LastData[i];
+                        CoinData second = coin.LastData[j];
+
                         decimal expectedProfitPercentage;
-                        if( ((coin.LastData[i].Bid-coin.LastData[j].Ask)/coin.LastData[j].Ask) > 
-                            ((coin.LastData[j].Bid-coin.LastData[i].Ask)/coin.LastData[i].Ask) ){
-                            from = coin.LastData[j];
-                            to = coin.LastData[i];
-                            var sellingPrice = coin.LastData[i].Bid;
-                            var buyingPrice = coin.LastData[j].Ask;
+
+                        var firstBid = first.Bid;
+                        var firstAsk = first.Ask;
+                        var secondAsk = second.Ask;
+                        var secondBid = second.Bid;
+
+                        if (first.PriceIsCoin) {
+                            if (isCoin) {
+                                // TODO: Different symbol transform. For now, not needed as all prices are BTC.
+                            } else {
+                                // When price is a coin and we request USD, currently there is no way to transform.
+                            }
+                        } else {
+                            if (isCoin) {
+                                var baseSymbolQueryResult = CoinData.GetBidAskForExchangeCoin(exchangeId: first.Exchange.Id, coinId: volumeCoin.Id);
+
+                                if (baseSymbolQueryResult != null) {
+                                    var baseSymbolData = baseSymbolQueryResult;
+
+                                    firstBid = firstBid * baseSymbolData.Bid;
+                                    firstAsk = firstAsk * baseSymbolData.Ask;
+                                } else {
+                                    continue;
+                                }
+                            } else {
+                                // TODO: Different fiat transform. For now, not needed as all prices are USD.
+                            }
+                        }
+
+                        if (second.PriceIsCoin) {
+                            if (isCoin) {
+                                // TODO: Different symbol transform. For now, not needed as all prices are BTC.
+                            } else {
+                                // When price is a coin and we request USD, currently there is no way to transform.
+                            }
+                        } else {
+                            if (isCoin) {
+                                var baseSymbolQueryResult = CoinData.GetBidAskForExchangeCoin(exchangeId: second.Exchange.Id, coinId: volumeCoin.Id);
+
+                                if (baseSymbolQueryResult != null) {
+                                    var baseSymbolData = baseSymbolQueryResult;
+
+                                    secondBid = secondBid * baseSymbolData.Bid;
+                                    secondAsk = secondAsk * baseSymbolData.Ask;
+                                } else {
+                                    continue;
+                                }
+                            } else {
+                                // TODO: Different fiat transform. For now, not needed as all prices are USD.
+                            }
+                        }
+
+                        if (((firstBid - secondAsk) / secondAsk) > ((firstBid - secondAsk) / secondAsk)) {
+                            from = second;
+                            to = first;
+
+                            var sellingPrice = firstBid;
+                            var buyingPrice = secondAsk;
+
                             expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         } else {
-                            from = coin.LastData[i];
-                            to = coin.LastData[j];
-                            var sellingPrice = coin.LastData[j].Bid;
-                            var buyingPrice = coin.LastData[i].Ask;
+                            from = first;
+                            to = second;
+
+                            var sellingPrice = secondBid;
+                            var buyingPrice = firstAsk;
+                            
                             expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         }
                     
-                        Arbitrage arbitrage = new Arbitrage{
+                        Arbitrage arbitrage = new Arbitrage {
                             FromCoinData = from,
                             ToCoinData = to,
                             ExpectedProfit = expectedProfitPercentage,
                             Volume = volume,
                             VolumeFiat = volumeFiat,
+                            VolumeCoin = volumeCoin,
+                            VolumeIsCoin = isCoin,
                             CreatedAt = DateTime.Now
                         };
+
                         arbitrageList.Add(new ResponseModels.Arbitrage{
                             FromExchange = arbitrage.FromCoinData.Exchange.Name,
                             ToExchange = arbitrage.ToCoinData.Exchange.Name,
@@ -62,7 +130,8 @@ namespace CryptoBackend.Controllers
                             ExpectedProfit = arbitrage.ExpectedProfit,
                             Volume = arbitrage.Volume,
                             CreatedAt = arbitrage.CreatedAt
-                        });   
+                        });
+
                         arbitrage.Save();
                     }
                 }
