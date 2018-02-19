@@ -10,44 +10,55 @@ namespace CryptoBackend.Controllers
     [Route("api/[controller]")]
     public class ArbitragesController : Controller
     {     
-        public decimal CalculateProfitPercentage(decimal sellingPrice,decimal buyingPrice){
-            return (((sellingPrice-buyingPrice))/buyingPrice);
+        public decimal CalculateProfitPercentage(decimal toBid, decimal fromAsk) {
+            return (((toBid - fromAsk)) / toBid);
         }
+
         public decimal PriceToUsd(CoinData coin){  
             return coin.PriceFiat.PriceUsd;
         }
         List<CoinData> coinData;
-        private decimal sellingPrice;
-        private decimal buyingPrice;
+        private decimal toPrice;
+        private decimal fromPrice;
         private string profitCurrency;
         private decimal fromBTCRate;
         private decimal toBTCRate;
-        public decimal[] getBTCRate (CoinData from,CoinData to){
-            decimal[] rates=new decimal[2];
-            var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: Coin.Find(symbol: "BTC")[0].Id);
-            var fromBid = from.Bid;
-            var toAsk = to.Ask;
-            if (baseSymbolQueryResultFrom != null) {
-                var baseSymbolData = baseSymbolQueryResultFrom;
+        public decimal[] GetBTCRate (CoinData from, CoinData to){
+            decimal[] rates = new decimal[2];
+            var btcId = Coin.Find(symbol: "BTC")[0].Id;
 
-                fromBid = fromBid / baseSymbolData.Bid;
-                rates[0]=fromBid;
-            } else {
-                    rates[0]=0;
+            var toBid = to.Bid;
+            var fromAsk = from.Ask;
+
+            {
+                var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: btcId);
+
+                if (baseSymbolQueryResultTo != null) {
+                    var baseSymbolData = baseSymbolQueryResultTo;
+
+                    toBid = toBid / baseSymbolData.Bid;
+                    rates[1] = toBid;
+                } else {
+                    rates[1] = 0;
+                }
             }
 
-            var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: Coin.Find(symbol: "BTC")[0].Id);
+            {
+                var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: btcId);
             
-            if (baseSymbolQueryResultTo != null) {
-                var baseSymbolData = baseSymbolQueryResultTo;
+                if (baseSymbolQueryResultFrom != null) {
+                    var baseSymbolData = baseSymbolQueryResultFrom;
 
-                toAsk = toAsk / baseSymbolData.Ask;
-                rates[1]=toAsk;
-            } else {
-                    rates[1]=0;
+                    fromAsk = fromAsk / baseSymbolData.Ask;
+                    rates[0]=fromAsk;
+                } else {
+                    rates[0] = 0;
+                }
             }
-           return rates;
+
+            return rates;
         }
+
         [HttpGet]
         public List<ResponseModels.Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] string symbol, [FromQuery] bool isCoin) {
             List<ResponseModels.Arbitrage> arbitrageList = new List<ResponseModels.Arbitrage>();
@@ -126,26 +137,28 @@ namespace CryptoBackend.Controllers
                             }
                         }
                         
-                        if (((secondAsk - firstBid) / firstBid) >  ((firstAsk - secondBid) / secondBid)) {
+                        if (CalculateProfitPercentage(secondBid, firstAsk) > CalculateProfitPercentage(firstBid, secondAsk)) {
                             from = first;
                             to = second;
 
-                            sellingPrice = secondAsk;
-                            buyingPrice = firstBid;
+                            toPrice = secondBid;
+                            fromPrice = firstAsk;
 
-                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+                            expectedProfitPercentage = CalculateProfitPercentage(secondBid, firstAsk);
                         } else {
                             from = second;
                             to = first;
 
-                            sellingPrice = firstAsk;
-                            buyingPrice = secondBid;
+                            toPrice = firstBid;
+                            fromPrice = secondAsk;
                             
-                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+                            expectedProfitPercentage = CalculateProfitPercentage(firstBid, secondAsk);
                         }
-                    //    var BTCRates =getBTCRate(from,to);
-                    //    fromBTCRate = BTCRates[0];
-                    //    toBTCRate = BTCRates[1];
+
+                        var BTCRates = GetBTCRate(from, to);
+                        fromBTCRate = BTCRates[0];
+                        toBTCRate = BTCRates[1];
+
                         Arbitrage arbitrage = new Arbitrage {
                             FromCoinData = from,
                             ToCoinData = to,
@@ -164,9 +177,9 @@ namespace CryptoBackend.Controllers
                             ExpectedProfit = arbitrage.ExpectedProfit,
                             Volume = arbitrage.Volume,
                             CreatedAt = arbitrage.CreatedAt,
-                            profitCurrency=symbol,
-                            ToPrice = buyingPrice,
-                            FromPrice = sellingPrice,
+                            profitCurrency = symbol,
+                            ToPrice = toPrice,
+                            FromPrice = fromPrice,
                             ToBTCRate = toBTCRate,
                             FromBTCRate = fromBTCRate
                         });
