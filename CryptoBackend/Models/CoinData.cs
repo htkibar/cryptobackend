@@ -164,7 +164,9 @@ namespace CryptoBackend.Models
                 data.ask as Ask,
                 data.bid as Bid,
                 data.last_price as LastPrice,
-                data.price_fiat_id as FiatId
+                data.price_fiat_id as PriceFiatId,
+                data.price_coin_id as PriceCoinId,
+                data.price_is_coin as PriceIsCoin
                 from coin_data as data
                 left outer join coin_data compare_data
                 on data.exchange_id = compare_data.exchange_id

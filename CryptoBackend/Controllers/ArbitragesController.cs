@@ -61,8 +61,8 @@ namespace CryptoBackend.Controllers
                                 if (baseSymbolQueryResult != null) {
                                     var baseSymbolData = baseSymbolQueryResult;
 
-                                    firstBid = firstBid * baseSymbolData.Bid;
-                                    firstAsk = firstAsk * baseSymbolData.Ask;
+                                    firstBid = firstBid / baseSymbolData.Bid;
+                                    firstAsk = firstAsk / baseSymbolData.Ask;
                                 } else {
                                     continue;
                                 }
@@ -84,8 +84,8 @@ namespace CryptoBackend.Controllers
                                 if (baseSymbolQueryResult != null) {
                                     var baseSymbolData = baseSymbolQueryResult;
 
-                                    secondBid = secondBid * baseSymbolData.Bid;
-                                    secondAsk = secondAsk * baseSymbolData.Ask;
+                                    secondBid = secondBid / baseSymbolData.Bid;
+                                    secondAsk = secondAsk / baseSymbolData.Ask;
                                 } else {
                                     continue;
                                 }
