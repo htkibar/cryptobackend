@@ -46,8 +46,6 @@ namespace CryptoBackend.Controllers
                             var buyingPrice = coin.LastData[i].Ask;
                             expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         }
-
-                        
                     
                         Arbitrage arbitrage= new Arbitrage{
                             FromCoinData = from,

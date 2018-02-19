@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CryptoBackend.Models;
 using CryptoBackend.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CryptoBackend.Integrations
 {
@@ -35,73 +36,85 @@ namespace CryptoBackend.Integrations
 
             [JsonProperty(PropertyName = "o")]
             public string OpeningPrice;
-
-             
-        
-      
         }
         private class TickerResult
         {
-              public TickerData CoinData { get; set; } 
-           // public Dictionary<TickerData, object> CoinData { get; set; } // TODO: Does it work?
-         //   public TickerData CoinData { get; set; }
+            [JsonProperty(PropertyName = "result")]
+            public Dictionary<string, List<string>> CoinData { get; set; }
         }
 
         private static readonly string BASE_URL = ApiConsumer.KRAKEN_BASE_URL;
-        private Exchange exchange=null;
+        private Exchange exchange = null;
         private Fiat fiat = null;
                
         public KrakenIntegration()
         {
-            var exchanges = Exchange.Find(name: "Kraken");
+            var exchanges = Exchange.Find(name: "kraken");
             if (exchanges.Count > 0) 
             {
                 exchange = exchanges[0];
-            } else 
-            {
-                throw new System.NotImplementedException();
             }
             
-            var fiats= Fiat.Find(symbol: "USD");
+            var fiats = Fiat.Find(symbol: "USD");
             
             if (fiats.Count > 0) 
             {
                 fiat = fiats[0];
-            } else 
-            {
-                throw new System.NotImplementedException();
-            }          
+            }      
         }
         public void UpdateCoinDetails()
         {
-            List<string> symbolPairs=new List<string>(new string[]
+            List<string> symbolPairs = new List<string>(new string[]
             {
                 "dashusd",
-                "xrpusd", 
-                "ethusd", 
-                "xbtusd",
+                "xxrpzusd", 
+                "xethzusd", 
+                "xxbtzusd",
             });  
             foreach (var symbolPair in symbolPairs) {
-                var reuqestUri= BASE_URL + "/public/Ticker?pair=" +symbolPairs;
-                var response = ApiConsumer.Get<TickerResult>(reuqestUri).Result;
+                var requestUri = BASE_URL + "/public/Ticker?pair=" + symbolPair;
+                var response = ApiConsumer.Get<dynamic>(requestUri).Result;
 
                 var symbol = symbolPair.Split("usd")[0];
 
-                var coins = Coin.Find(symbol : symbol.ToUpper());
+                if (symbol == "xbtz") {
+                    symbol = "btc";
+                }
+
+                if (symbol == "xxrpz") {
+                    symbol = "xrp";
+                }
+
+                if (symbol == "xethz") {
+                    symbol = "eth";
+                }
+
+                var coins = Coin.Find(symbol: symbol.ToUpper());
+                //string value;
+                //response.CoinData.TryGetValue(symbolPair.ToUpper(), out value);
+                //Console.WriteLine(value);
 
                 if(coins.Count > 0) {
                     var coin = coins[0];
+                    var result = response.result[symbolPair.ToUpper()];
+                    var volumeArray = result.v;
+                    var highArray = result.h;
+                    var lowArray = result.l;
+                    var askArray = result.a;
+                    var bidArray = result.b;
+                    var lastPriceArray = result.c;
+
                     var coinData = new CoinData {
                         Coin=coin,
                         Exchange=exchange,
                         UpdatedAt = DateTime.Now,
                         Fiat = fiat,
-                        Volume = decimal.Parse(response.CoinData.Volume[0]),
-                        High = decimal.Parse(response.CoinData.High[0]),
-                        Low = decimal.Parse(response.CoinData.Low[0]),
-                        Ask = decimal.Parse(response.CoinData.Ask[0]),
-                        Bid = decimal.Parse(response.CoinData.Bid[0]),
-                        LastPrice = decimal.Parse(response.CoinData.Last[0])
+                        Volume = decimal.Parse(volumeArray[0].ToString()),
+                        High = decimal.Parse(highArray[0].ToString()),
+                        Low = decimal.Parse(lowArray[0].ToString()),
+                        Ask = decimal.Parse(askArray[0].ToString()),
+                        Bid = decimal.Parse(bidArray[0].ToString()),
+                        LastPrice = decimal.Parse(lastPriceArray[0].ToString())
                     };
                     coinData.Save();
                 }

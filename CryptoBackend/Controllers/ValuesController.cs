@@ -24,8 +24,10 @@ namespace CryptoBackend.Controllers
         {
             var cex = new CexIntegration();
             var bitfinex = new BitfinexIntegration();
+            var kraken = new KrakenIntegration();
             RecurringJob.AddOrUpdate(() => cex.UpdateCoinDetails(), Cron.Minutely);
             RecurringJob.AddOrUpdate(() => bitfinex.UpdateCoinDetails(), Cron.Minutely);
+            RecurringJob.AddOrUpdate(() => kraken.UpdateCoinDetails(), Cron.Minutely);
             return "ok";
         }
 
