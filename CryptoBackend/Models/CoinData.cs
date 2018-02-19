@@ -13,8 +13,11 @@ namespace CryptoBackend.Models
         private Guid exchangeId;
         private Exchange exchange;
         private DateTime updatedAt;
-        private Guid fiatId;
-        private Fiat fiat;
+        private Guid? priceFiatId = null;
+        private Fiat priceFiat;
+        private Guid? priceCoinId = null;
+        private Coin priceCoin;
+        private bool priceIsCoin;
         private decimal volume;
         private decimal high;
         private decimal low;
@@ -57,22 +60,39 @@ namespace CryptoBackend.Models
             }
         }
         public DateTime UpdatedAt { get => updatedAt; set => updatedAt = value; }
-        public Guid FiatId { set => fiatId = value; }
-        public Fiat Fiat {
+        public Guid PriceFiatId { set => priceFiatId = value; }
+        public Fiat PriceFiat {
             get
             {
-                if (fiat == null) {
-                    fiat = Fiat.Find(id: coinId);
+                if (priceFiat == null && priceFiatId.HasValue) {
+                    priceFiat = Fiat.Find(id: (Guid) priceFiatId);
                 }
                 
-                return fiat;
+                return priceFiat;
             }
             set
             {
-                fiat = value;
-                fiatId = fiat.Id;
+                priceFiat = value;
+                priceFiatId = priceFiat.Id;
             }
         }
+        public Guid PriceCoinId { set => priceCoinId = value; }
+        public Coin PriceCoin {
+            get
+            {
+                if (priceCoin == null && priceCoinId.HasValue) {
+                    priceCoin = Coin.Find(id: (Guid) priceCoinId);
+                }
+                
+                return priceCoin;
+            }
+            set
+            {
+                priceCoin = value;
+                priceCoinId = priceCoin.Id;
+            }
+        }
+        public bool PriceIsCoin { get => priceIsCoin; set => priceIsCoin = value; }
         public decimal Volume { get => volume; set => volume = value; }
         public decimal High { get => high; set => high = value; }
         public decimal Low { get => low; set => low = value; }
@@ -141,7 +161,9 @@ namespace CryptoBackend.Models
                     ask,
                     bid,
                     last_price,
-                    price_fiat_id
+                    price_fiat_id,
+                    price_coin_id,
+                    price_is_coin
                 )
                 values
                 (
@@ -155,7 +177,9 @@ namespace CryptoBackend.Models
                     @Ask,
                     @Bid,
                     @LastPrice,
-                    @PriceFiatId
+                    @PriceFiatId,
+                    @PriceCoinId,
+                    @PriceIsCoin
                 );
             ", new {
                 Id = Guid.NewGuid(),
@@ -168,7 +192,9 @@ namespace CryptoBackend.Models
                 Ask = Ask,
                 Bid = Bid,
                 LastPrice = LastPrice,
-                PriceFiatId = Fiat.Id
+                PriceFiatId = priceFiatId,
+                PriceCoinId = priceCoinId,
+                PriceIsCoin = PriceIsCoin
             });
         }
     }

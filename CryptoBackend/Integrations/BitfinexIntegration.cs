@@ -92,7 +92,7 @@ namespace CryptoBackend.Integrations
                         Coin=coin,
                         Exchange=exchange,
                         UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(response.Timestamp.Split('.')[0])).DateTime,
-                        Fiat = fiat,
+                        PriceFiat = fiat,
                         Volume = decimal.Parse(response.Volume),
                         High = decimal.Parse(response.High),
                         Low = decimal.Parse(response.Low),

@@ -14,7 +14,7 @@ namespace CryptoBackend.Controllers
             return (((sellingPrice-buyingPrice))/buyingPrice);
         }
         public decimal PriceToUsd(CoinData coin){  
-            return coin.Fiat.PriceUsd;
+            return coin.PriceFiat.PriceUsd;
         }
         List<CoinData> coinData;
 
@@ -47,7 +47,7 @@ namespace CryptoBackend.Controllers
                             expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         }
                     
-                        Arbitrage arbitrage= new Arbitrage{
+                        Arbitrage arbitrage = new Arbitrage{
                             FromCoinData = from,
                             ToCoinData = to,
                             ExpectedProfit = expectedProfitPercentage,

@@ -12,7 +12,9 @@ namespace CryptoBackend.Models
         private CoinData toCoinData;
         private decimal expectedProfit;
         private decimal volume;
-        private Fiat volumeFiat;
+        private Fiat volumeFiat = null;
+        private Coin volumeCoin = null;
+        private bool volumeIsCoin;
         private DateTime createdAt;
 
         public Guid Id { get => id; set => id = value; }
@@ -21,6 +23,8 @@ namespace CryptoBackend.Models
         public decimal ExpectedProfit { get => expectedProfit; set => expectedProfit = value; }
         public decimal Volume { get => volume; set => volume = value; }
         public Fiat VolumeFiat { get => volumeFiat; set => volumeFiat = value; }
+        public Coin VolumeCoin { get => volumeCoin; set => volumeCoin = value; }
+        public bool VolumeIsCoin { get => volumeIsCoin; set => volumeIsCoin = value; }
         public DateTime CreatedAt { get => createdAt; set => createdAt = value; }
 
         public static List<Arbitrage> Find(
@@ -33,15 +37,18 @@ namespace CryptoBackend.Models
             DateTime? toDate = null
         )
         {
+            // TODO: IS NOT WORKING.
             var sql = @"
                 select
                 arbitrage.id as Id,
                 arbitrage.from_coin_data_id as FromCoinDataId,
                 arbitrage.to_coin_data_id as ToCoinDataId,
-                arbitrage.expected_profit as ExpectedProfit
-                arbitrage.volume as Volume
-                arbitrage.volume_fiat_id as VolumeFiatId
-                arbitrage.created_at as CreatedAt
+                arbitrage.expected_profit as ExpectedProfit,
+                arbitrage.volume as Volume,
+                arbitrage.volume_fiat_id as VolumeFiatId,
+                arbitrage.volume_coin_id as VolumeCoinId,
+                arbitrage.volume_is_coin as VolumeIsCoin,
+                arbitrage.created_at as CreatedAt,
                 coin.id as CoinId
                 from arbitrages as arbitrage left join coins as coin
                 where 1=1
@@ -100,6 +107,15 @@ namespace CryptoBackend.Models
 
         public void Save()
         {
+            Guid? volumeFiatId = null;
+            Guid? volumeCoinId = null;
+
+            if (volumeIsCoin) {
+                volumeCoinId = volumeCoin.Id;
+            } else {
+                volumeFiatId = volumeFiat.Id;
+            }
+
             Database.Master.Run<Guid>(@"
                 insert into arbitrages
                 (
@@ -109,6 +125,8 @@ namespace CryptoBackend.Models
                     expected_profit,
                     volume,
                     volume_fiat_id,
+                    volume_coin_id,
+                    volume_is_coin,
                     created_at
                 )
                 values
@@ -119,6 +137,8 @@ namespace CryptoBackend.Models
                     @ExpectedProfit,
                     @Volume,
                     @VolumeFiatId,
+                    @VolumeCoinId,
+                    @VolumeIsCoin,
                     @CreatedAt
                 )
                 returning id;
@@ -128,7 +148,9 @@ namespace CryptoBackend.Models
                 ToCoinDataId = ToCoinData.Id,
                 ExpectedProfit = ExpectedProfit,
                 Volume = Volume,
-                VolumeFiatId = volumeFiat.Id,
+                VolumeFiatId = volumeFiatId,
+                VolumeCoinId = volumeCoinId,
+                VolumeIsCoin = volumeIsCoin,
                 CreatedAt = DateTime.Now
             });
         }

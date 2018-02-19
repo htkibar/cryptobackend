@@ -108,7 +108,7 @@ namespace CryptoBackend.Integrations
                         Coin=coin,
                         Exchange=exchange,
                         UpdatedAt = DateTime.Now,
-                        Fiat = fiat,
+                        PriceFiat = fiat,
                         Volume = decimal.Parse(volumeArray[0].ToString()),
                         High = decimal.Parse(highArray[0].ToString()),
                         Low = decimal.Parse(lowArray[0].ToString()),

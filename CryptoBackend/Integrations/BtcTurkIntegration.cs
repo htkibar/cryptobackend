@@ -80,7 +80,7 @@ namespace CryptoBackend.Integrations
                         Coin = coin,
                         Exchange = exchange,
                         UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(data.Timestamp.ToString())).DateTime,
-                        Fiat = fiat,
+                        PriceFiat = fiat,
                         Volume = decimal.Parse(data.Volume.ToString()),
                         High = decimal.Parse(data.High.ToString()),
                         Low = decimal.Parse(data.Low.ToString()),
