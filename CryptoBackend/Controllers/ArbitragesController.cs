@@ -17,7 +17,37 @@ namespace CryptoBackend.Controllers
             return coin.PriceFiat.PriceUsd;
         }
         List<CoinData> coinData;
+        private decimal sellingPrice;
+        private decimal buyingPrice;
+        private string profitCurrency;
+        private decimal fromBTCRate;
+        private decimal toBTCRate;
+        public decimal[] getBTCRate (CoinData from,CoinData to){
+            decimal[] rates=new decimal[2];
+            var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: Coin.Find(symbol: "BTC")[0].Id);
+            var fromBid = from.Bid;
+            var toAsk = to.Ask;
+            if (baseSymbolQueryResultFrom != null) {
+                var baseSymbolData = baseSymbolQueryResultFrom;
 
+                fromBid = fromBid / baseSymbolData.Bid;
+                rates[0]=fromBid;
+            } else {
+                    rates[0]=0;
+            }
+
+            var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: Coin.Find(symbol: "BTC")[0].Id);
+            
+            if (baseSymbolQueryResultTo != null) {
+                var baseSymbolData = baseSymbolQueryResultTo;
+
+                toAsk = toAsk / baseSymbolData.Ask;
+                rates[1]=toAsk;
+            } else {
+                    rates[1]=0;
+            }
+           return rates;
+        }
         [HttpGet]
         public List<ResponseModels.Arbitrage> GetArbitrages([FromQuery] decimal volume, [FromQuery] string symbol, [FromQuery] bool isCoin) {
             List<ResponseModels.Arbitrage> arbitrageList = new List<ResponseModels.Arbitrage>();
@@ -53,6 +83,7 @@ namespace CryptoBackend.Controllers
                                 // TODO: Different symbol transform. For now, not needed as all prices are BTC.
                             } else {
                                 // When price is a coin and we request USD, currently there is no way to transform.
+                                continue;
                             }
                         } else {
                             if (isCoin) {
@@ -76,6 +107,7 @@ namespace CryptoBackend.Controllers
                                 // TODO: Different symbol transform. For now, not needed as all prices are BTC.
                             } else {
                                 // When price is a coin and we request USD, currently there is no way to transform.
+                                continue;
                             }
                         } else {
                             if (isCoin) {
@@ -93,25 +125,27 @@ namespace CryptoBackend.Controllers
                                 // TODO: Different fiat transform. For now, not needed as all prices are USD.
                             }
                         }
-
-                        if (((firstBid - secondAsk) / secondAsk) > ((firstBid - secondAsk) / secondAsk)) {
-                            from = second;
-                            to = first;
-
-                            var sellingPrice = firstBid;
-                            var buyingPrice = secondAsk;
-
-                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
-                        } else {
+                        
+                        if (((secondAsk - firstBid) / firstBid) >  ((firstAsk - secondBid) / secondBid)) {
                             from = first;
                             to = second;
 
-                            var sellingPrice = secondBid;
-                            var buyingPrice = firstAsk;
+                            sellingPrice = secondAsk;
+                            buyingPrice = firstBid;
+
+                            expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
+                        } else {
+                            from = second;
+                            to = first;
+
+                            sellingPrice = firstAsk;
+                            buyingPrice = secondBid;
                             
                             expectedProfitPercentage = CalculateProfitPercentage(sellingPrice,buyingPrice);
                         }
-                    
+                    //    var BTCRates =getBTCRate(from,to);
+                    //    fromBTCRate = BTCRates[0];
+                    //    toBTCRate = BTCRates[1];
                         Arbitrage arbitrage = new Arbitrage {
                             FromCoinData = from,
                             ToCoinData = to,
@@ -129,7 +163,12 @@ namespace CryptoBackend.Controllers
                             Coin = arbitrage.FromCoinData.Coin.Name,
                             ExpectedProfit = arbitrage.ExpectedProfit,
                             Volume = arbitrage.Volume,
-                            CreatedAt = arbitrage.CreatedAt
+                            CreatedAt = arbitrage.CreatedAt,
+                            profitCurrency=symbol,
+                            ToPrice = buyingPrice,
+                            FromPrice = sellingPrice,
+                            ToBTCRate = toBTCRate,
+                            FromBTCRate = fromBTCRate
                         });
 
                         arbitrage.Save();

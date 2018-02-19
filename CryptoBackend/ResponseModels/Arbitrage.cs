@@ -11,6 +11,11 @@ namespace CryptoBackend.ResponseModels
         public string Coin;
         public decimal ExpectedProfit;
         public decimal Volume;
+        public decimal FromPrice;
+        public decimal ToPrice;
+        public decimal ToBTCRate;
+        public decimal FromBTCRate;
+        public string profitCurrency;
         // public Fiat VolumeFiat;
         public DateTime CreatedAt;
     }
