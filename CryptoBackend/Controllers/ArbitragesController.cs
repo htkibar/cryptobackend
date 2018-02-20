@@ -32,37 +32,35 @@ namespace CryptoBackend.Controllers
             var toBid = to.Bid;
             var fromAsk = from.Ask;
 
-            {
-                if(to.Exchange.Name=="binance"){
+            if (to.PriceIsCoin && to.PriceCoin.Id == btcId) {
+                // It is already in BTC.
+                rates[1] = toBid;
+            } else {
+                var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: btcId);
+
+                if (baseSymbolQueryResultTo != null) {
+                    var baseSymbolData = baseSymbolQueryResultTo;
+
+                    toBid = toBid / baseSymbolData.Bid;
                     rates[1] = toBid;
-                }else{
-                    var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: btcId);
-
-                    if (baseSymbolQueryResultTo != null) {
-                        var baseSymbolData = baseSymbolQueryResultTo;
-
-                        toBid = toBid / baseSymbolData.Bid;
-                        rates[1] = toBid;
-                    } else {
-                        rates[1] = 0;
-                    }                 
+                } else {
+                    rates[1] = 0;
                 }
             }
 
-            { 
-                if(from.Exchange.Name=="binance"){
-                    rates[0] = fromAsk;
-                }else {
-                    var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: btcId);
-                
-                    if (baseSymbolQueryResultFrom != null) {
-                        var baseSymbolData = baseSymbolQueryResultFrom;
+            if (from.PriceIsCoin && from.PriceCoin.Id == btcId) {
+                // It is already in BTC.
+                rates[1] = fromAsk;
+            } else {
+                var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: btcId);
+            
+                if (baseSymbolQueryResultFrom != null) {
+                    var baseSymbolData = baseSymbolQueryResultFrom;
 
-                        fromAsk = fromAsk / baseSymbolData.Ask;
-                        rates[0]=fromAsk;
-                    } else {
-                        rates[0] = 0;               
-                    }
+                    fromAsk = fromAsk / baseSymbolData.Ask;
+                    rates[0] = fromAsk;
+                } else {
+                    rates[1] = 0;
                 }
             }
 

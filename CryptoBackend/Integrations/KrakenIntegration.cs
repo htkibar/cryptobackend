@@ -77,7 +77,7 @@ namespace CryptoBackend.Integrations
 
                 var symbol = symbolPair.Split("usd")[0];
 
-                if (symbol == "xbtz") {
+                if (symbol == "xxbtz") {
                     symbol = "btc";
                 }
 

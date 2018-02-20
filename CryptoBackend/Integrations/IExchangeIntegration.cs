@@ -2,6 +2,7 @@
 
 namespace CryptoBackend.Integrations
 {
+    
     public interface IExchangeIntegration
     {
         void UpdateOrderbook();

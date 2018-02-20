@@ -10,18 +10,7 @@ namespace CryptoBackend.Integrations
 {
 
     class BitfinexIntegration : IExchangeIntegration
-    {    
-        private List<OrderBook.Order> ToOrders(List<OrderData> orderData) {
-            List<OrderBook.Order> orders= new List<OrderBook.Order>();
-
-            foreach(var orderDatum in orderData) {
-                OrderBook.Order order = new OrderBook.Order();
-                order.price= decimal.Parse(orderDatum.Price);
-                order.amount= decimal.Parse(orderDatum.Amount);
-                orders.Add(order);
-            }    
-            return orders;
-        }
+    {
         private class TickerData
         {
             [JsonProperty(PropertyName = "volume")]
@@ -50,7 +39,7 @@ namespace CryptoBackend.Integrations
             [JsonProperty(PropertyName = "timestamp")]
             public string Timestamp { get; set; }
         }
-        private class OrderResponse{
+        private class OrderResponse {
             [JsonProperty(PropertyName = "bids")]
             public List<OrderData>  Bids{ get; set; }
             
@@ -92,18 +81,10 @@ namespace CryptoBackend.Integrations
                 "dshusd",
                 "xrpusd"
             });   
-            // List<TickerData> coinDetails=new List<TickerData>();
-            // var requestUri=BASE_URL+"/symbols";
-            // var response = ApiConsumer.Get<List<string>>(requestUri).Result; //get symbol pairs which contains ...usd (btcusd,ltcusd)..
-            // foreach (var symbolPair in response) {
-            //     if(symbolPair.Contains("usd")){
-            //         symbolPairs.Add(symbolPair);
-            //     }
-            // }
+
             foreach (var symbolPair in symbolPairs) {
                 var requestUri=BASE_URL+"/pubticker/"+symbolPair;
                 var response=ApiConsumer.Get<TickerData>(requestUri).Result;
-                // coinDetails.Add(response);
 
                 var symbol = symbolPair.Split("usd")[0];
 
@@ -155,13 +136,34 @@ namespace CryptoBackend.Integrations
                 if (symbol == "dsh") {
                     symbol = "dash";
                 }
+                
                 var coins = Coin.Find(symbol: symbol.ToUpper());
-                if(coins.Count > 0){ 
+
+                var asks = new List<Ask>();
+                var bids = new List<Bid>();
+
+                foreach (var responseAsk in response.Asks) {
+                    asks.Add(new Ask{
+                        Price = decimal.Parse(responseAsk.Price),
+                        Amount = decimal.Parse(responseAsk.Amount)
+                    });
+                }
+
+                foreach (var responseBid in response.Bids) {
+                    bids.Add(new Bid{
+                        Price = decimal.Parse(responseBid.Price),
+                        Amount = decimal.Parse(responseBid.Amount)
+                    });
+                }
+
+                if (coins.Count > 0) { 
                     var coin = coins[0];
-                    var orderBook= new OrderBook{
+                    var orderBook = new OrderBook {
+                        Coin=coin,
+                        Exchange=exchange,
                         UpdatedAt = DateTime.Now,
-                        Asks = ToOrders(response.Asks),
-                        Bids = ToOrders(response.Bids)
+                        Asks = asks,
+                        Bids = bids
                     };
                     orderBook.Save();
                 }
