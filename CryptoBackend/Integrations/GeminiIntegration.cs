@@ -10,22 +10,22 @@ namespace CryptoBackend.Integrations
 
     class GeminiIntegration : IExchangeIntegration
     {  
-    class TickerData
-    {
-        [JsonProperty(PropertyName = "volume")]
-        public Dictionary<string, object> Volume { get; set; } // TODO: Does it work?
-        [JsonProperty(PropertyName = "last")]
-        public string Last { get; set; }
-        [JsonProperty(PropertyName = "bid")]
-        public string Bid { get; set; }
+        class TickerData
+        {
+            [JsonProperty(PropertyName = "volume")]
+            public Dictionary<string, object> Volume { get; set; } // TODO: Does it work?
+            [JsonProperty(PropertyName = "last")]
+            public string Last { get; set; }
+            [JsonProperty(PropertyName = "bid")]
+            public string Bid { get; set; }
 
-        [JsonProperty(PropertyName = "ask")]
-        public string Ask { get; set; }
+            [JsonProperty(PropertyName = "ask")]
+            public string Ask { get; set; }
 
-        [JsonProperty(PropertyName = "pair")]
-        public string Pair { get; set; }
- 
-    }
+            [JsonProperty(PropertyName = "pair")]
+            public string Pair { get; set; }
+    
+        }
         private static readonly string BASE_URL = ApiConsumer.GEMINI_BASE_URL;
         
         public void UpdateCoinDetails()
@@ -56,7 +56,7 @@ namespace CryptoBackend.Integrations
             throw new System.NotImplementedException();
         }
 
-        public Task UpdateOrderbook()
+        public void UpdateOrderbook()
         {
             throw new System.NotImplementedException();
         }

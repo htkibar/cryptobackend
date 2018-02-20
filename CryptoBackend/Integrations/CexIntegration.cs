@@ -94,7 +94,7 @@ namespace CryptoBackend.Integrations
             throw new System.NotImplementedException();
         }
 
-        public Task UpdateOrderbook()
+        public void UpdateOrderbook()
         {
             throw new System.NotImplementedException();
         }

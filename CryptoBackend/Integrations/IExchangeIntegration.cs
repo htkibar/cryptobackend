@@ -4,7 +4,7 @@ namespace CryptoBackend.Integrations
 {
     public interface IExchangeIntegration
     {
-        Task UpdateOrderbook();
+        void UpdateOrderbook();
         Task UpdateCoinPrices();
         void UpdateCoinDetails();
     }
