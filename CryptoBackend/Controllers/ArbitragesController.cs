@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using CryptoBackend.Integrations;
 using Microsoft.AspNetCore.Mvc;
 using CryptoBackend.Models;
+
 namespace CryptoBackend.Controllers
+
 {
     [Route("api/[controller]")]
     public class ArbitragesController : Controller
@@ -31,28 +33,36 @@ namespace CryptoBackend.Controllers
             var fromAsk = from.Ask;
 
             {
-                var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: btcId);
-
-                if (baseSymbolQueryResultTo != null) {
-                    var baseSymbolData = baseSymbolQueryResultTo;
-
-                    toBid = toBid / baseSymbolData.Bid;
+                if(to.Exchange.Name=="binance"){
                     rates[1] = toBid;
-                } else {
-                    rates[1] = 0;
+                }else{
+                    var baseSymbolQueryResultTo = CoinData.GetBidAskForExchangeCoin(exchangeId: to.Exchange.Id, coinId: btcId);
+
+                    if (baseSymbolQueryResultTo != null) {
+                        var baseSymbolData = baseSymbolQueryResultTo;
+
+                        toBid = toBid / baseSymbolData.Bid;
+                        rates[1] = toBid;
+                    } else {
+                        rates[1] = 0;
+                    }                 
                 }
             }
 
-            {
-                var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: btcId);
-            
-                if (baseSymbolQueryResultFrom != null) {
-                    var baseSymbolData = baseSymbolQueryResultFrom;
+            { 
+                if(from.Exchange.Name=="binance"){
+                    rates[0] = fromAsk;
+                }else {
+                    var baseSymbolQueryResultFrom = CoinData.GetBidAskForExchangeCoin(exchangeId: from.Exchange.Id, coinId: btcId);
+                
+                    if (baseSymbolQueryResultFrom != null) {
+                        var baseSymbolData = baseSymbolQueryResultFrom;
 
-                    fromAsk = fromAsk / baseSymbolData.Ask;
-                    rates[0]=fromAsk;
-                } else {
-                    rates[0] = 0;
+                        fromAsk = fromAsk / baseSymbolData.Ask;
+                        rates[0]=fromAsk;
+                    } else {
+                        rates[0] = 0;               
+                    }
                 }
             }
 
