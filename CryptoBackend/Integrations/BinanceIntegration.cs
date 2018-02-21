@@ -175,5 +175,4 @@ namespace CryptoBackend.Integrations
             }
         }
     }
-    ,
 }
