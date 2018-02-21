@@ -79,7 +79,8 @@ namespace CryptoBackend.Integrations
                 "btcusd",
                 "ethusd",
                 "dshusd",
-                "xrpusd"
+                "xrpusd",
+                "ltcusd"
             });   
 
             foreach (var symbolPair in symbolPairs) {
@@ -125,7 +126,8 @@ namespace CryptoBackend.Integrations
                 "btcusd",
                 "ethusd",
                 "dshusd",
-                "xrpusd"
+                "xrpusd",
+                "ltcusd"
             });   
             foreach (var symbolPair in symbolPairs) {
                 var requestUri=BASE_URL+"/book/"+symbolPair;

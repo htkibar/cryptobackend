@@ -9,6 +9,14 @@ namespace CryptoBackend.Integrations
 {
     class BinanceIntegration : IExchangeIntegration
     {
+        private class OrderData{
+            [JsonProperty(PropertyName = "bids")]
+            public List<List<dynamic>>  Bids { get; set; }
+            [JsonProperty(PropertyName = "asks")]
+            public List<List<dynamic>>  Asks { get; set; }
+            [JsonProperty(PropertyName = "lastUpdateId")]
+            public decimal  Timestamp { get; set; }
+        }
         private class TickerData
         {
             [JsonProperty(PropertyName = "symbol")]
@@ -81,7 +89,8 @@ namespace CryptoBackend.Integrations
             {
                 "ETHBTC",
                 "XRPBTC",
-                "DASHBTC"
+                "DASHBTC",
+                "LTCBTC"
             });  
             foreach (var symbolPair in symbolPairs) {
                 var requestUri=BASE_URL + "/ticker/24hr?symbol=" + symbolPair;
@@ -121,7 +130,50 @@ namespace CryptoBackend.Integrations
 
         public void UpdateOrderbook()
         {
-            throw new System.NotImplementedException();
+            List<string> symbolPairs=new List<string>(new string[]
+            {
+                "ETHBTC",
+                "XRPBTC",
+                "DASHBTC",
+                "LTCBTC"
+            });  
+            foreach (var symbolPair in symbolPairs) {
+                var requestUri=BASE_URL + "/depth?symbol=" + symbolPair;
+                var response=ApiConsumer.Get<OrderData>(requestUri).Result;
+
+                var symbol = symbolPair.Split("BTC")[0];
+                var coins = Coin.Find(symbol: symbol);
+
+                var asks = new List<Ask>();
+                var bids = new List<Bid>();
+              
+                foreach (var responseAsk in response.Asks) {
+                    asks.Add(new Ask{
+                        Price = responseAsk[0],
+                        Amount = responseAsk[1],
+                    });
+                }
+
+                foreach (var responseBid in response.Bids) {
+                    bids.Add(new Bid{
+                        Price = responseBid[0],
+                        Amount = responseBid[1],
+                    });
+                }
+
+                if (coins.Count > 0) { 
+                    var coin = coins[0];
+                    var orderBook = new OrderBook {
+                        Coin=coin,
+                        Exchange=exchange,
+                        UpdatedAt = DateTime.Now,
+                        Asks = asks,
+                        Bids = bids
+                    };
+                    orderBook.Save();
+                }
+            }
         }
     }
+    ,
 }
