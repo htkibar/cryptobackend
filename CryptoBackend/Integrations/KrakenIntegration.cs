@@ -128,7 +128,7 @@ namespace CryptoBackend.Integrations
                     coinData.Save();
                 }
             }
-
+            UpdateOrderbook();
         }
 
         public Task UpdateCoinPrices()
@@ -176,28 +176,31 @@ namespace CryptoBackend.Integrations
                     var coin = coins[0];
                     var result = response.result[symbolPair.ToUpper()];
 
-                foreach (var responseAsk in result.Asks) {
-                    asks.Add(new Ask{
-                        Price = decimal.Parse(responseAsk[0]),
-                        Amount = decimal.Parse(responseAsk[1]),
-                    });
-                }
+                    var responseAsks=result.asks;
+                    var responseBids = result.bids;
+                    foreach (var responseAsk in responseAsks) {
 
-                foreach (var responseBid in response.Bids) {
-                    bids.Add(new Bid{
-                        Price = decimal.Parse(responseBid[0]),
-                        Amount = decimal.Parse(responseBid[1]),
-                    });
-                }
+                        asks.Add(new Ask{
+                            Price = responseAsk[0],
+                            Amount = responseAsk[1],
+                        });
+                    }
 
-                var coinData = new OrderBook {
-                    Coin=coin,
-                    Exchange=exchange,
-                    UpdatedAt = DateTime.Now,
-                    Asks = asks,
-                    Bids = bids
-                };
-                coinData.Save();
+                    foreach (var responseBid in responseBids) {
+                        bids.Add(new Bid{
+                            Price = responseBid[0],
+                            Amount = responseBid[1],
+                        });
+                    }
+
+                    var coinData = new OrderBook {
+                        Coin=coin,
+                        Exchange=exchange,
+                        UpdatedAt = DateTime.Now,
+                        Asks = asks,
+                        Bids = bids
+                    };
+                    coinData.Save();
                 }
             }
         }

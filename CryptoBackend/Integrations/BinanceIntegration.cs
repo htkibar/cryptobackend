@@ -149,15 +149,15 @@ namespace CryptoBackend.Integrations
               
                 foreach (var responseAsk in response.Asks) {
                     asks.Add(new Ask{
-                        Price = responseAsk[0],
-                        Amount = responseAsk[1],
+                        Price = decimal.Parse(responseAsk[0]),
+                        Amount = decimal.Parse(responseAsk[1]),
                     });
                 }
 
                 foreach (var responseBid in response.Bids) {
                     bids.Add(new Bid{
-                        Price = responseBid[0],
-                        Amount = responseBid[1],
+                        Price = decimal.Parse(responseBid[0]),
+                        Amount = decimal.Parse(responseBid[1]),
                     });
                 }
 

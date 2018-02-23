@@ -120,8 +120,7 @@ namespace CryptoBackend.Integrations
                 "BTC/USD/",
                 "ETH/USD/",
                 "DASH/USD/",
-                "XRP/USD/",
-                "LTC/USD/"
+                "XRP/USD/"
             });   
             foreach (var symbolPair in symbolPairs) {
                 var requestUri=BASE_URL+"/order_book/"+symbolPair;

@@ -5,7 +5,6 @@ using CryptoBackend.Models;
 using CryptoBackend.Utils;
 using Newtonsoft.Json;
 
-
 namespace CryptoBackend.Integrations
 {
 
@@ -73,7 +72,7 @@ namespace CryptoBackend.Integrations
         }
     
         public void UpdateCoinDetails()
-        {
+        { 
             List<string> symbolPairs=new List<string>(new string[]
             {
                 "btcusd",
@@ -119,6 +118,7 @@ namespace CryptoBackend.Integrations
             throw new System.NotImplementedException();
         }
 
+        
         public void UpdateOrderbook()
         {
             List<string> symbolPairs=new List<string>(new string[]
