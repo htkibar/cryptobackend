@@ -199,5 +199,18 @@ namespace CryptoBackend.Controllers
          
             return arbitrageList.OrderByDescending(arbitrage => arbitrage.ExpectedProfit).ToList();
         }
+     
+        [HttpGet]
+        public List<ResponseModels.Arbitrage> GetArbitragesByOrderBook([FromQuery] decimal volume, [FromQuery] string symbol, [FromQuery] bool isCoin) {
+            List<ResponseModels.Arbitrage> arbitrageList = new List<ResponseModels.Arbitrage>();
+            
+
+            
+                  
+            return arbitrageList.OrderByDescending(arbitrage => arbitrage.ExpectedProfit).ToList();
+ 
+        }
     }
+
+    
 }

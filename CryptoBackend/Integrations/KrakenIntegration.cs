@@ -128,7 +128,6 @@ namespace CryptoBackend.Integrations
                     coinData.Save();
                 }
             }
-            UpdateOrderbook();
         }
 
         public Task UpdateCoinPrices()
