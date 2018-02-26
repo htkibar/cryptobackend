@@ -133,14 +133,14 @@ namespace CryptoBackend.Integrations
                 var bids = new List<Bid>();
               
                 foreach (var responseAsk in response.Asks) {
-                    asks.Add(new Ask{
+                    asks.Add(new Ask {
                         Price = responseAsk[0],
                         Amount = responseAsk[1],
                     });
                 }
 
                 foreach (var responseBid in response.Bids) {
-                    bids.Add(new Bid{
+                    bids.Add(new Bid {
                         Price = responseBid[0],
                         Amount = responseBid[1],
                     });
@@ -149,8 +149,8 @@ namespace CryptoBackend.Integrations
                 if (coins.Count > 0) { 
                     var coin = coins[0];
                     var orderBook = new OrderBook {
-                        Coin=coin,
-                        Exchange=exchange,
+                        CoinId = coin.Id,
+                        ExchangeId = exchange.Id,
                         UpdatedAt = DateTime.Now,
                         Asks = asks,
                         Bids = bids

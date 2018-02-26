@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CryptoBackend.Utils;
 
 namespace CryptoBackend.Models
@@ -91,7 +92,50 @@ namespace CryptoBackend.Models
         }
    
         public void Save(){
+            id = Guid.NewGuid();
 
+            Database.Master.Run<int>(@"
+                insert into orderbooks
+                (
+                    id,
+                    exchange_id,
+                    coin_id,
+                    price_is_coin,
+                    price_coin_id,
+                    price_fiat_id
+                ) values (
+                    @Id,
+                    @ExchangeId,
+                    @CoinId,
+                    @PriceIsCoin,
+                    @PriceCoinId,
+                    @PriceFiatId
+                );
+            ", new {
+                Id = id,
+                ExchangeId = exchangeId,
+                CoinId = coinId,
+                PriceIsCoin = priceCoinId != null,
+                PriceFiatId = priceFiatId,
+                PriceCoinId = priceCoinId
+            });
+
+            asks = asks.Take(30).ToList();
+            bids = bids.Take(30).ToList();
+
+            var queries = new List<Tuple<string, object>>();
+
+            foreach (Ask ask in asks) {
+                ask.OrderbookId = id;
+                queries.Add(ask.SaveQuery());
+            }
+
+            foreach (Bid bid in bids) {
+                bid.OrderbookId = id;
+                queries.Add(bid.SaveQuery());
+            }
+
+            Database.Master.RunAsync(queries);
         }
   }
 }

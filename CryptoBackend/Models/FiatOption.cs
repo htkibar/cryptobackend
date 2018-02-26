@@ -90,9 +90,10 @@ namespace CryptoBackend.Models
             }).ToList();
         }
 
-        public Task Save()
+        public int Save()
         {
-            return Database.Master.RunAsync<int>(@"
+            // TODO: PARALLELIZE
+            return Database.Master.Run<int>(@"
                 insert into coin_dw_options
                 (
                     exchange_id,

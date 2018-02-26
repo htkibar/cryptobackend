@@ -101,14 +101,16 @@ CREATE TABLE coin_data
   ask           NUMERIC                 NOT NULL,
   bid           NUMERIC                 NOT NULL,
   last_price    NUMERIC                 NOT NULL,
-  price_fiat_id UUID                    NOT NULL
+  price_fiat_id UUID
     CONSTRAINT coin_data_fiats_id_fk
     REFERENCES fiats,
   id            UUID                    NOT NULL
     CONSTRAINT coin_data_id_pk
     PRIMARY KEY,
-  CONSTRAINT coin_data_exchange_id_coin_id_pk
-  UNIQUE (exchange_id, coin_id)
+  price_is_coin BOOLEAN DEFAULT FALSE   NOT NULL,
+  price_coin_id UUID
+    CONSTRAINT coin_data_coins_price_coin_id_fk
+    REFERENCES coins
 );
 
 CREATE UNIQUE INDEX coin_data_id_uindex
@@ -138,12 +140,64 @@ CREATE TABLE arbitrages
     REFERENCES coin_data,
   expected_profit   NUMERIC                 NOT NULL,
   volume            NUMERIC DEFAULT 0       NOT NULL,
-  volume_fiat_id    UUID                    NOT NULL
+  volume_fiat_id    UUID
     CONSTRAINT arbitrages_fiats_id_fk
     REFERENCES fiats,
-  created_at        TIMESTAMP DEFAULT now() NOT NULL
+  created_at        TIMESTAMP DEFAULT now() NOT NULL,
+  volume_coin_id    UUID,
+  volume_is_coin    BOOLEAN DEFAULT FALSE   NOT NULL
 );
 
 CREATE UNIQUE INDEX arbitrages_id_uindex
   ON arbitrages (id);
+
+CREATE TABLE orderbooks
+(
+  id            UUID NOT NULL
+    CONSTRAINT orderbooks_pkey
+    PRIMARY KEY,
+  exchange_id   UUID NOT NULL
+    CONSTRAINT orderbooks_exchanges_id_fk
+    REFERENCES exchanges,
+  coin_id       UUID NOT NULL
+    CONSTRAINT orderbooks_coins_id_fk
+    REFERENCES coins,
+  price_is_coin BOOLEAN DEFAULT FALSE,
+  price_coin_id UUID
+    CONSTRAINT orderbooks_coins_id_price_fk
+    REFERENCES coins,
+  price_fiat_id UUID
+    CONSTRAINT orderbooks_fiats_id_price_fk
+    REFERENCES fiats
+);
+
+CREATE UNIQUE INDEX orderbooks_id_uindex
+  ON orderbooks (id);
+
+CREATE TABLE asks
+(
+  id           SERIAL            NOT NULL
+    CONSTRAINT asks_pkey
+    PRIMARY KEY,
+  orderbook_id UUID              NOT NULL
+    CONSTRAINT asks_orderbooks_id_fk
+    REFERENCES orderbooks,
+  amount       NUMERIC DEFAULT 0 NOT NULL,
+  price        NUMERIC DEFAULT 0 NOT NULL
+);
+
+CREATE UNIQUE INDEX asks_id_uindex
+  ON asks (id);
+
+CREATE TABLE bids
+(
+  id           SERIAL            NOT NULL
+    CONSTRAINT bids_pkey
+    PRIMARY KEY,
+  orderbook_id UUID              NOT NULL
+    CONSTRAINT bids_orderbooks_id_fk
+    REFERENCES orderbooks,
+  amount       NUMERIC DEFAULT 0 NOT NULL,
+  price        NUMERIC DEFAULT 0 NOT NULL
+);
 

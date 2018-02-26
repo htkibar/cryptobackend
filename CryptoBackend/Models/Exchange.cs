@@ -119,14 +119,13 @@ namespace CryptoBackend.Models
                         });
 
                         foreach (var coin in coins) {
-                            tasks.Add(coin.Save());
+                            coin.Save();
                         }
 
                         foreach (var fiat in fiats) {
-                            tasks.Add(fiat.Save());
+                            fiat.Save();
                         }
                         
-                        Task.WaitAll(tasks.ToArray());
                         transaction.Commit();
                     } catch {
                         transaction.Rollback();

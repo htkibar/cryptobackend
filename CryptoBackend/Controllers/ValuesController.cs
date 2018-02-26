@@ -15,6 +15,8 @@ namespace CryptoBackend.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            var cex = new CexIntegration();
+            cex.UpdateOrderbook();
             return new string[] { "value1", "value2" };
         }
 
